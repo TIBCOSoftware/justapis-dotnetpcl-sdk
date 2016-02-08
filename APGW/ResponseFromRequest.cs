@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace APGW
 {
-    class ResponseFromRequest
+    public class ResponseFromRequest
     {
-        private int statusCode { get; set; }
-        private string data;
-        private Dictionary<string, string> headers;
+        public int StatusCode { get; set; }
+        public string Data { get; set; }
+        public Dictionary<string, string> Headers { get; set; }
 
         public ResponseFromRequest(int statusCode, String data, Dictionary<string, string> headers) {
-            this.statusCode = statusCode;
-            this.data = data;
-            this.headers = headers;
+            this.StatusCode = statusCode;
+            this.Data = data;
+            this.Headers = headers;
         }
     }
 }

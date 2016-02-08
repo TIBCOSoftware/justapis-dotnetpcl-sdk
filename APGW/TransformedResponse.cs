@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace APGW
 {
-    class TransformedResponse<T>
+    public class TransformedResponse<T>
     {
         public T result;
 

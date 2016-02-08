@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace APGW
 {
-    class APRestClient : IAPRestClient
+    public class APRestClient : IAPRestClient
     {
-        public void executeRequest<T>(RequestContext<T> request)
+        public void ExecuteRequest<T>(RequestContext<T> request)
         {
 
         }

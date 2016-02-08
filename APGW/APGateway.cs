@@ -12,20 +12,47 @@ namespace APGW
         public string Uri { get; set; }
         public string Method { get; set; }
 
+        //private IAPRestClient restClient;
+
+        public IAPRestClient RestClient {
+            set {
+                RestClient = value;
+            }
+            get {
+                if (RestClient == null)
+                {
+                    RestClient = new APRestClient();
+                }
+
+                return RestClient;
+            }
+        }
+
         /// <summary>
         /// Sends a get request
         /// 
         /// </summary>
         /// <param name="url"></param>
-        public void get(string url) { 
-        
+        public void Get(string url) {
+            Execute(HTTPMethod.GET);    
         }
 
-        class Builder {
-            string Uri { get; set; }
-            string Method { get; set; }
+        public void Execute(HTTPMethod method)
+        {
+            Connect(Uri, method);
+        }
 
-            public APGateway build() {
+        public void Connect(string uri, HTTPMethod method) { 
+            StringRequestContext request = new StringRequestContext(method, uri);
+
+            RestClient.ExecuteRequest(request);
+        }
+
+        public class Builder {
+            public string Uri { get; set; }
+            public string Method { get; set; }
+
+            public APGateway Build() {
                 APGateway gw = new APGateway();
 
                 gw.Uri = Uri;

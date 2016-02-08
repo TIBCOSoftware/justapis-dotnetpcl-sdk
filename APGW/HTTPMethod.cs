@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace APGW
 {
-    public interface IAPRestClient
+    public enum HTTPMethod
     {
-         void ExecuteRequest<T>(RequestContext<T> request);
+        GET,
+        POST,
+        PUT,
+        DELETE
     }
 }

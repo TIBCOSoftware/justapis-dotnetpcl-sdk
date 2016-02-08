@@ -7,20 +7,26 @@ using System.Collections;
 
 namespace APGW
 {
-    abstract class RequestContext<T>
+    public abstract class RequestContext<T>
     {
-        private string url { get; set; }
-        private Dictionary<string, string> headers { get; set; }
-        private bool shouldPinCert { get; set; }
-        private Dictionary<string, string> postParam { get; set; }
-        private APGateway gateway { get; set; }
+        public string Url { get; set; }
+        public Dictionary<string, string> Headers { get; set; }
+        public bool ShouldPinCert { get; set; }
+        public Dictionary<string, string> PostParam { get; set; }
+        public APGateway Gateway { get; set; }
+        public HTTPMethod Method { get; set; }
+
+        public RequestContext(HTTPMethod method, string url) {
+            Method = method;
+            Url = url;
+        }
 
         public RequestContext(APGateway gateway)
         {
-            this.gateway = gateway;
+            this.Gateway = gateway;
         }
 
-        abstract protected TransformedResponse<T> parseResponse(ResponseFromRequest responseFromRequest, Exception e);
+        public abstract  TransformedResponse<T> ParseResponse(ResponseFromRequest responseFromRequest, Exception e);
 
 
     }

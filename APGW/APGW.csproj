@@ -35,8 +35,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="APGateway.cs" />
-    <Compile Include="Class1.cs" />
+    <Compile Include="APRestClient.cs" />
+    <Compile Include="HTTPMethod.cs" />
+    <Compile Include="RequestContext.cs" />
+    <Compile Include="IAPRestClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResponseFromRequest.cs" />
+    <Compile Include="StringRequestContext.cs" />
+    <Compile Include="TransformedResponse.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
