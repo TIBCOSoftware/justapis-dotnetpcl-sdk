@@ -7,6 +7,7 @@ using APGW;
 using RichardSzalay.MockHttp;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 
 namespace UnitTestAPGW
@@ -14,6 +15,8 @@ namespace UnitTestAPGW
     [TestClass]
     public class UnitTest1
     {
+        
+
         [TestMethod]
         public void TestGatewaySetup()
         {
@@ -26,23 +29,28 @@ namespace UnitTestAPGW
             Assert.AreEqual("http://localhost/api/v1", gw.Uri);
         }
 
-        public void TestGet() { 
+        [TestMethod]
+        public void TestGet() {
             var mockHttp = new MockHttpMessageHandler();
 
             // Setup a respond for the user api (including a wildcard in the URL)
             mockHttp.When("http://localost/api/user/*")
-                    .Respond("application/json", "{'name' : 'Test McGee'}"); // Respond with JSON
+                    .Respond("application/json", "{'name' : 'foobar'}"); // Respond with JSON
 
             // Inject the handler or client into your application code
-            var client = new HttpClient(mockHttp);
-                Task task = new Task(() => {
-                var response = client.GetAsync("http://localost/api/user/1234");
-                // or without async: var response = client.GetAsync("http://localost/api/user/1234").Result;
-            });
-            
-		    task.Start();
-		    task.Wait();
+            using (var client = new HttpClient(mockHttp))
+            {
+                string str = "";
+                Task task = Task.Run(async () =>
+                {
+                    HttpResponseMessage response = await client.GetAsync("http://localost/api/user/1234");
+                    str = await response.Content.ReadAsStringAsync();
 
+                    Assert.AreEqual("{'name' : 'foobar'}", str);
+                });
+                task.Wait();
+            }
+            
         }
     }
 }
