@@ -29,7 +29,9 @@ namespace UnitTestAPGW
                 {
                     APRestClient restClient = new APRestClient(mockHttp);
 
-                    var response = await restClient.Get(HTTPMethod.GET, "http://localost/api/user/v1");
+                    StringRequestContext s = new StringRequestContext(HTTPMethod.GET, "http://localost/api/user/v1");
+
+                    var response = await restClient.ExecuteRequest(s);
                     str = await response.Content.ReadAsStringAsync();
                 });
                 t.Wait();

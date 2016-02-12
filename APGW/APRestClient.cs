@@ -23,15 +23,20 @@ namespace APGW
             httpClient = new HttpClient(handler);
         }
 
-        public async Task<HttpResponseMessage> Post(HTTPMethod method, string url, Dictionary<string, string> param)
+        private async Task<HttpResponseMessage> Post<T>(RequestContext<T> context)
         {
-            HttpResponseMessage response = await httpClient.PostAsync(url, null);
+            HttpResponseMessage response = await httpClient.PostAsync(context.Url, null);
             return response;
         }
 
-        public async Task<HttpResponseMessage> Get(HTTPMethod method, string url) {
-                HttpResponseMessage response = await httpClient.GetAsync(url);
-                return response;
+        private async Task<HttpResponseMessage> Get<T>(RequestContext<T> context)
+        {
+            HttpResponseMessage response = await httpClient.GetAsync(context.Url);
+            if (context.Gateway != null && context.Gateway.ShouldUseCache)
+            { 
+                // Cache the response keyed by the url
+            }
+            return response;
         }
 
         public string ReadResponse()
@@ -39,15 +44,15 @@ namespace APGW
             return responseBody;
         }
 
-        public async void ExecuteRequest<T>(RequestContext<T> request)
+        public Task<HttpResponseMessage> ExecuteRequest<T>(RequestContext<T> request)
         {
             if (request.Method == HTTPMethod.POST || request.Method == HTTPMethod.PUT) {
                 // Send a post
-                await Post(request.Method, request.Url, request.PostParam);
+                return Post(request);
             }
             else { 
                 // Send a get
-                await Get(request.Method, request.Url);
+                return Get(request);
             }
         }
     }

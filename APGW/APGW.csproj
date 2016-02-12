@@ -36,7 +36,10 @@
   <ItemGroup>
     <Compile Include="APGateway.cs" />
     <Compile Include="APRestClient.cs" />
+    <Compile Include="CacheManager.cs" />
+    <Compile Include="ICacheManager.cs" />
     <Compile Include="HTTPMethod.cs" />
+    <Compile Include="LRUCache.cs" />
     <Compile Include="RequestContext.cs" />
     <Compile Include="IAPRestClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -45,6 +48,9 @@
     <Compile Include="TransformedResponse.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="C5">
+      <HintPath>..\packages\C5.2.4.5828.26833\lib\portable-net40+sl50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\C5.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\portable-net45+wp80+win8+wpa81+dnxcore50\Newtonsoft.Json.dll</HintPath>
     </Reference>

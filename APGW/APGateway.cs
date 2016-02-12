@@ -11,8 +11,7 @@ namespace APGW
 
         public string Uri { get; set; }
         public string Method { get; set; }
-
-        //private IAPRestClient restClient;
+        public Boolean ShouldUseCache { get; set; }
 
         public IAPRestClient RestClient {
             set {
