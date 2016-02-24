@@ -11,6 +11,8 @@ namespace APGW
 {
     public interface IAPRestClient
     {
+        string ReadResponse();
+
         Task<HttpResponseMessage> ExecuteRequest<T>(RequestContext<T> request);
     }
 }

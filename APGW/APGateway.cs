@@ -13,17 +13,19 @@ namespace APGW
         public string Method { get; set; }
         public Boolean ShouldUseCache { get; set; }
 
+        private IAPRestClient _restClient;
+
         public IAPRestClient RestClient {
             set {
-                RestClient = value;
+                _restClient = value;
             }
             get {
-                if (RestClient == null)
+                if (_restClient == null)
                 {
-                    RestClient = new APRestClient();
+                    _restClient = new APRestClient();
                 }
 
-                return RestClient;
+                return _restClient;
             }
         }
 
@@ -39,6 +41,10 @@ namespace APGW
         public void Execute(HTTPMethod method)
         {
             Connect(Uri, method);
+        }
+
+        public string ReadResponse() {
+            return RestClient.ReadResponse();
         }
 
         public void Connect(string uri, HTTPMethod method) { 

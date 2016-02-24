@@ -15,11 +15,13 @@ namespace APGW
         private HttpClient httpClient;
         private string responseBody = null;
 
-        public APRestClient() { 
+        public APRestClient() {
+            httpClient = new HttpClient();
         }
 
         public APRestClient(HttpMessageHandler handler) {
             this.handler = handler;
+            
             httpClient = new HttpClient(handler);
         }
 
