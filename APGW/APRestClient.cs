@@ -9,20 +9,49 @@ using System.Runtime;
 
 namespace APGW
 {
+
+
     public class APRestClient : IAPRestClient
     {
-        private HttpMessageHandler handler;
         private HttpClient httpClient;
-        private string responseBody = null;
+        private HttpResponseMessage responseBody;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public APRestClient() {
             httpClient = new HttpClient();
         }
 
-        public APRestClient(HttpMessageHandler handler) {
-            this.handler = handler;
-            
-            httpClient = new HttpClient(handler);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="systemHandler"></param>
+        public APRestClient(HttpMessageHandler systemHandler)
+        {
+            httpClient = new HttpClient(systemHandler);
+        }
+
+        /// <summary>
+        /// Constructor for APRestClient
+        /// 
+        /// If the systemHandler is null, it'll use the default HttpClientHandler.
+        /// 
+        /// </summary>
+        /// <param name="systemHandler"></param>
+        /// <param name="customHandler"></param>
+        public APRestClient(HttpMessageHandler systemHandler, HttpMessageHandler customHandler)
+        {
+            if (systemHandler != null)
+            {
+                ((DelegatingHandler)customHandler).InnerHandler = systemHandler;
+                httpClient = new HttpClient(customHandler);
+            }
+            else {
+                HttpClientHandler baseSystemHandler = new HttpClientHandler();
+                ((DelegatingHandler)customHandler).InnerHandler = baseSystemHandler;
+                httpClient = new HttpClient(customHandler);
+            }
         }
 
         private async Task<HttpResponseMessage> Post<T>(RequestContext<T> context)
@@ -34,16 +63,13 @@ namespace APGW
         private async Task<HttpResponseMessage> Get<T>(RequestContext<T> context)
         {
             HttpResponseMessage response = await httpClient.GetAsync(context.Url);
-            if (context.Gateway != null && context.Gateway.ShouldUseCache)
-            { 
-                // Cache the response keyed by the url
-            }
+            responseBody = response;
             return response;
         }
 
-        public string ReadResponse()
+        public TransformedResponse<HttpResponseMessage> ReadResponse()
         {
-            return responseBody;
+            return new TransformedResponse<HttpResponseMessage>(responseBody);
         }
 
         public Task<HttpResponseMessage> ExecuteRequest<T>(RequestContext<T> request)

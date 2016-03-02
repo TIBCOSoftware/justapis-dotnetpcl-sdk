@@ -13,15 +13,17 @@ using System.Diagnostics;
 namespace UnitTestAPGW
 {
     [TestClass]
-    public class UnitTest1
+    public class UnitTestGatewaySetup
     {
-        
+
 
         [TestMethod]
         public void TestGatewaySetup()
         {
             APGateway.Builder builder = new APGateway.Builder();
-            builder.Uri = "http://localhost/api/v1";
+
+            builder.Uri("http://localhost/api/v1");
+
             APGateway gw = builder.Build();
 
             Assert.IsNotNull(gw);
@@ -30,7 +32,8 @@ namespace UnitTestAPGW
         }
 
         [TestMethod]
-        public void TestGet() {
+        public void TestGet()
+        {
             var mockHttp = new MockHttpMessageHandler();
 
             // Setup a respond for the user api (including a wildcard in the URL)
@@ -50,7 +53,9 @@ namespace UnitTestAPGW
                 });
                 task.Wait();
             }
-            
+
+            mockHttp.Flush();
+
         }
     }
 }

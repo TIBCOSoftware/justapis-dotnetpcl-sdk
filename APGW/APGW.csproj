@@ -36,7 +36,9 @@
   <ItemGroup>
     <Compile Include="APGateway.cs" />
     <Compile Include="APRestClient.cs" />
+    <Compile Include="CacheEventListener.cs" />
     <Compile Include="CacheManager.cs" />
+    <Compile Include="InMemoryCacheHandler.cs" />
     <Compile Include="ICacheManager.cs" />
     <Compile Include="HTTPMethod.cs" />
     <Compile Include="LRUCache.cs" />
