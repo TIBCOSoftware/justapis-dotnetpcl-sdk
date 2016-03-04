@@ -1,4 +1,6 @@
 ﻿using System;
+using Autofac;
+using APGW;
 
 namespace TEST_APGW_CORE
 {
@@ -6,6 +8,12 @@ namespace TEST_APGW_CORE
 	{
 		public BaseUnitTest ()
 		{
+		}
+
+		public void SetupDI() {
+			var builder = new ContainerBuilder();
+			builder.RegisterType<Logger> ().As<ILogger> ();
+			Config.RebuildContainer (builder.Build());	
 		}
 	}
 }

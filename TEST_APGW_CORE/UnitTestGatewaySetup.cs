@@ -2,22 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+
 using APGW;
 using RichardSzalay.MockHttp;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using NUnit.Framework;
+using Xamarin.UITest;
+using Xamarin.UITest.Queries;
 
-
-namespace UnitTestAPGW
+namespace TEST_APGW_CORE
 {
-    [TestClass]
-    public class UnitTestGatewaySetup
+
+    public class UnitTestGatewaySetup : BaseUnitTest
     {
 
+		[SetUp]
+		public void Setup() {
+			SetupDI ();
+		}
 
-        [TestMethod]
+        [Test]
         public void TestGatewaySetup()
         {
             APGateway.Builder builder = new APGateway.Builder();
@@ -31,7 +37,7 @@ namespace UnitTestAPGW
             Assert.AreEqual("http://localhost/api/v1", gw.Uri);
         }
 
-        [TestMethod]
+		[Test]
         public void TestGet()
         {
             var mockHttp = new MockHttpMessageHandler();

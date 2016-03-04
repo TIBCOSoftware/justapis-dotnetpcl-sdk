@@ -2,20 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using APGW;
 using RichardSzalay.MockHttp;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using NUnit.Framework;
+using Xamarin.UITest;
+using Xamarin.UITest.Queries;
+using Autofac;
 
 
-namespace UnitTestAPGW
+namespace TEST_APGW_CORE
 {
-    [TestClass]
-    public class UnitTestRestClient
+	public class UnitTestRestClient : BaseUnitTest
     {
-        [TestMethod]
+		[SetUp]
+		public void Setup() {
+			SetupDI ();
+		}
+
+        [Test]
         public void TestGetRestClient()
         {
             var mockHttp = new MockHttpMessageHandler();
@@ -30,11 +37,15 @@ namespace UnitTestAPGW
                 APRestClient restClient = new APRestClient(mockHttp);
                 StringRequestContext s = new StringRequestContext(HTTPMethod.GET, "http://localost/api/user/v1");
 
-                var response = await restClient.ExecuteRequest(s);
-                str = await response.Content.ReadAsStringAsync();
+                var response = restClient.ExecuteRequest(s);
+				response.Wait();
+				TransformedResponse<HttpResponseMessage> tt =  response.Result;
+				str = await tt.result.Content.ReadAsStringAsync();
             });
             t.Wait();
             Assert.AreEqual("{'name' : 'foobar'}", str);
+
+			Console.WriteLine ("@@  done");
 
             mockHttp.Flush();
         }

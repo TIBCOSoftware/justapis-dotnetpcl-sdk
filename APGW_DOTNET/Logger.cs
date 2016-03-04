@@ -1,11 +1,17 @@
 ﻿using System;
+using APGW;
 
 namespace APGW_DOTNET
 {
-	public class Logger
+	[assembly: Xamarin.Forms.Dependency (typeof (ILogger))]
+	public class Logger : ILogger
 	{
 		public Logger ()
 		{
+		}
+
+		public void Log(string message) {
+			Console.WriteLine (".net: " + message);
 		}
 	}
 }
