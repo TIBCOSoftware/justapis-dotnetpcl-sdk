@@ -2,9 +2,9 @@
 
 namespace APGW_DOTNET
 {
-	public class APRestClient
+	public class Logger
 	{
-		public APRestClient ()
+		public Logger ()
 		{
 		}
 	}

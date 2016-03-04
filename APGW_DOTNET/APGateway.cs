@@ -2,13 +2,11 @@
 
 namespace APGW_DOTNET
 {
-	public class APGateway : APGW.APGateway
+	public class APGateway
 	{
 		public APGateway ()
 		{
-			
 		}
-			
 	}
 }
 
