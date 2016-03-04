@@ -3,7 +3,6 @@ using APGW;
 
 namespace APGW_DOTNET
 {
-	[assembly: Xamarin.Forms.Dependency (typeof (ILogger))]
 	public class Logger : ILogger
 	{
 		public Logger ()
@@ -12,6 +11,10 @@ namespace APGW_DOTNET
 
 		public void Log(string message) {
 			Console.WriteLine (".net: " + message);
+		}
+
+		public void Log(string message, Exception e) {
+			Log (message + " : " + e.Message);
 		}
 	}
 }

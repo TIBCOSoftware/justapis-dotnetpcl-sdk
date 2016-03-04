@@ -1,9 +1,12 @@
 ﻿using System;
 
-namespace APGW_CORE
+namespace APGW
 {
 	public interface ILogger
 	{
+		void Log(string message);
+
+		void Log(string message, Exception e);
 	}
 }
 
