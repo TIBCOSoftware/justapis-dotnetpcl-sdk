@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Runtime;
+using Xamarin.Forms;
+using Autofac;
 
 namespace APGW
 {
 
-
-    public class APRestClient : IAPRestClient
+	public class APRestClient : IAPRestClient<TransformedResponse<HttpResponseMessage>>
     {
         private HttpClient httpClient;
         private HttpResponseMessage responseBody;
@@ -60,11 +61,12 @@ namespace APGW
             return response;
         }
 
-        private async Task<HttpResponseMessage> Get<T>(RequestContext<T> context)
+		private async Task<HttpResponseMessage> Get<T>(RequestContext<T> context)
         {
             HttpResponseMessage response = await httpClient.GetAsync(context.Url);
-            responseBody = response;
-            return response;
+			responseBody = response;
+
+			return response;
         }
 
         public TransformedResponse<HttpResponseMessage> ReadResponse()
@@ -72,15 +74,22 @@ namespace APGW
             return new TransformedResponse<HttpResponseMessage>(responseBody);
         }
 
-        public Task<HttpResponseMessage> ExecuteRequest<T>(RequestContext<T> request)
+		public async Task<TransformedResponse<HttpResponseMessage>> ExecuteRequest<T>(RequestContext<T> request)
         {
+			LogHelper.Log ("Executing request: " + request.Url);
             if (request.Method == HTTPMethod.POST || request.Method == HTTPMethod.PUT) {
                 // Send a post
-                return Post(request);
+				HttpResponseMessage result = await Post(request);
+				LogHelper.Log ("@@ finished getting response");
+
+				return new TransformedResponse<HttpResponseMessage> (result);
             }
             else { 
                 // Send a get
-                return Get(request);
+				HttpResponseMessage result = await Get(request);
+				LogHelper.Log ("@@ finished getting response");
+
+				return new TransformedResponse<HttpResponseMessage> (result);
             }
         }
     }

@@ -80,7 +80,7 @@ namespace APGW_DOTNET
 				}
 
 				foreach (var cert in CertManager.GetCerts()) {
-					X509Certificate c = new X509Certificate (cert.Value ());
+					X509Certificate c = new X509Certificate (cert.Value);
 
 					if (c.GetCertHashString().Equals(certificate.GetCertHashString())) {
 						return true;

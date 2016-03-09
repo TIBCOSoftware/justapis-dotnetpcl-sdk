@@ -8,10 +8,11 @@ namespace APGW
 {
     public class TransformedResponse<T>
     {
-        public T result;
+		public T Result { get; set; }
+
 
         public TransformedResponse(T result) {
-            this.result = result;
+			this.Result = result;
         }
     }
 }

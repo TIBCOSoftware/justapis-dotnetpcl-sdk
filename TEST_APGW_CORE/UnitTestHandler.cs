@@ -12,44 +12,54 @@ using Xamarin.UITest.Queries;
 
 namespace TEST_APGW_CORE
 {
-    public class UnitTestHandler
+    public class UnitTestHandler: BaseUnitTest
     {
+		[SetUp]
+		public void Setup() {
+			SetupDI ();
+		}
 
         [Test]
         public void test_Handler() {
             APGateway.Builder builder = new APGateway.Builder();
             builder.Method(HTTPMethod.GET.ToString());
-            builder.Uri("http://localhost/api/user/");
+			builder.Uri("http://localhost/api/user/cacheMe/");
             APGateway gw = builder.Build();
 
             var mockHttp = new MockHttpMessageHandler();
 
             // Setup a respond for the user api (including a wildcard in the URL)
-            mockHttp.When("http://localhost/api/user/*")
+			mockHttp.When("http://localhost/api/user/cacheMe/*")
                     .Respond("application/json", "{'name' : 'foobar'}"); // Respond with JSON
 
             InMemoryCacheHandler cache = new InMemoryCacheHandler();
             
             gw.RestClient = new APRestClient(mockHttp, cache);
+			var listener = new CacheEventListener (gw, cache);
 
-            cache.AddListener(new CacheEventListener(gw, cache));
-            gw.Get("foo");
+            cache.AddListener(listener);
 
             // Count listener
             Assert.AreEqual(1, cache.countListeners());
 
-            // Get the response from the previous request
-            string body = gw.ReadResponse();
+			var body = gw.GetSync("/cacheMe");
 
             Assert.AreEqual("{'name' : 'foobar'}", body);
             Assert.AreEqual(1, cache.Count());
 
-            Assert.AreEqual("{'name' : 'foobar'}", cache.get("http://localhost/api/user/"));
+			Assert.AreEqual("{'name' : 'foobar'}", cache.GetFromCache(uri: "http://localhost/api/user/cacheMe/"));
 
             // Should reduce the number of listeners
             Assert.AreEqual(0, cache.countListeners());
 
             mockHttp.Flush();
+
+			// Clear out mock
+			//mockHttp.Clear ();
+
+			body = gw.GetSync("foo");
+			Assert.AreEqual("{'name' : 'foobar'}", body);
+
         }
 
 
@@ -76,13 +86,12 @@ namespace TEST_APGW_CORE
             gw.RestClient = new APRestClient(mockHttp, cache);
 
             cache.AddListener(new CacheEventListener(gw, cache));
-            gw.Get("foo");
+
 
             // Count listener
-            //Assert.AreEqual(1, cache.countListeners());
+            Assert.AreEqual(1, cache.countListeners());
 
-            // Get the response from the previous request
-            string body = gw.ReadResponse();
+			var body = gw.GetSync("foo");
 
             Assert.AreEqual("foo", body);
             Assert.AreEqual(0, cache.Count());

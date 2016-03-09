@@ -10,7 +10,7 @@ using System.Collections.Concurrent;
 
 namespace APGW
 {
-    public class InMemoryCacheHandler : DelegatingHandler
+    public class InMemoryCacheHandler : DelegatingHandler, ICacheManager
     {
         private ConcurrentDictionary<string, string> inMemoryCache;
 
@@ -51,15 +51,23 @@ namespace APGW
             return inMemoryCache.Count;
         }
 
-        public string get(String uri) {
+		public string GetFromCache(String uri, string requestMethod  = "GET") {
             string val;
             inMemoryCache.TryGetValue(uri, out val);
             return val;
         }
 
-        public void put(String uri, String body) {
+		public void PutIntoCache(String uri, String body, string requestMethod = "GET") {
             inMemoryCache.TryAdd(uri, body);
         }
+
+		public bool HasInCache(string uri, string requestMethod  = "GET") {
+			return inMemoryCache.ContainsKey (uri);
+		}
+
+		public void ClearCache() {
+			inMemoryCache.Clear ();
+		}
 
         public int countListeners() {
             return Listeners.Count();

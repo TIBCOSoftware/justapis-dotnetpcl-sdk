@@ -11,9 +11,10 @@ namespace APGW
     public class CacheEventListener
     {
         private APGateway Gw;
-        private InMemoryCacheHandler InMemoryCache;
-
-
+		public InMemoryCacheHandler InMemoryCache {
+			get;
+			set;
+		}
 
         public CacheEventListener(APGateway gw, InMemoryCacheHandler inMemoryCache) {
             Gw = gw;
@@ -23,14 +24,20 @@ namespace APGW
         }
 
         private void ResponseConsumed(object sender, EventArgs e) {
+			#if DEBUG
+			LogHelper.Log("CORE: Listener notified...");
+			#endif
             var responseEventArgs = e as ResponseEventArgs;
             System.Diagnostics.Debug.WriteLine(">>>> consumed" + responseEventArgs.Body);
 
             CacheControlHeaderValue cacheControlVal = responseEventArgs.CacheControlValue;
             if (cacheControlVal == null || !cacheControlVal.NoCache)
             {
-                System.Diagnostics.Debug.WriteLine("Wrote into cache using key: " + responseEventArgs.Uri);
-                InMemoryCache.put(responseEventArgs.Uri, responseEventArgs.Body);
+				#if DEBUG
+				LogHelper.Log("CORE: Wrote into cache using key: " + responseEventArgs.Uri);
+				#endif
+
+				InMemoryCache.PutIntoCache(uri: responseEventArgs.Uri, body: responseEventArgs.Body);
             }
 
             Detach();

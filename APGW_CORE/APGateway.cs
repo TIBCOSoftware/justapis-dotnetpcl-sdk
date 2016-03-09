@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Net.Http;
+using Autofac;
+using Autofac.Builder;
+using System.Net.Http.Headers;
 
 namespace APGW
 {
@@ -12,15 +15,25 @@ namespace APGW
     public class APGateway
     {
 
+        public APGateway() {}
+
         public string Uri { get; set; }
         public string Method { get; set; }
-        public Boolean ShouldUseCache { get; set; }
 
         public CacheEventListener Listener { get; set; }
 
-        private IAPRestClient _restClient;
+        private IAPRestClient<TransformedResponse<HttpResponseMessage>> _restClient;
 
         public event ChangedEventHandler Changed;
+
+		public static CertManager CertManager { get; set; }
+
+		private bool _useCaching = true;
+		public APGateway UseCaching(bool _useCaching) {
+			this._useCaching = _useCaching;
+			return this;
+		}
+
 
         // Invoke the Changed event; called whenever list changes
         protected virtual void OnChanged(EventArgs e)
@@ -31,11 +44,12 @@ namespace APGW
             }
         }
 
-        public IAPRestClient RestClient
+		public IAPRestClient<TransformedResponse<HttpResponseMessage>> RestClient
         {
             set
             {
                 _restClient = value;
+
             }
             get
             {
@@ -53,80 +67,121 @@ namespace APGW
         /// 
         /// </summary>
         /// <param name="url"></param>
-        public void Get(string url)
+		public string GetSync(string url)
         {
-            Execute(HTTPMethod.GET);
+            var str = ExecuteSync(HTTPMethod.GET);
+			return str;
         }
 
-        public void Execute(HTTPMethod method)
+		public async void GetAsync<T>(string url, Callback<T> callback) {
+			Execute(HTTPMethod.GET, callback);
+		}
+
+		public async void Execute<T>(HTTPMethod method, Callback<T> callback)
         {
-            Connect(Uri, method);
+			Connect(Uri, method, callback);
         }
 
-        public string ReadResponse()
+		public string ExecuteSync(HTTPMethod method)
+		{
+			return ConnectSync(Uri, method);
+		}			
+
+		public async void Connect<T>(string uri, HTTPMethod method, Callback<T> callback)
         {
+			var request = callback.CreateRequestContext ();
+			request.Method = method;
+			request.Url = uri;
 
-            try
-            {
-                TransformedResponse<HttpResponseMessage> res = RestClient.ReadResponse();
-                Task<string> task = Task.Run(() =>
-                res.result.Content.ReadAsStringAsync());
+            var response = await RestClient.ExecuteRequest(request);
+			var body = await response.Result.Content.ReadAsStringAsync ();
+			#if DEBUG
+			LogHelper.Log ("CORE: response body is " + body);
+			#endif
+			request.ParseResponse(body);
 
-                string body = null;
-                if (task != null)
-                {
-                    body = task.Result;
+			// Trigger cache listener
+			BindListenerAfterReadingResponse (body, response.Result.RequestMessage.RequestUri.ToString (), response.Result.Headers.CacheControl);
 
-                    // Notify listener
-                    OnChanged(new ResponseEventArgs(body, res.result.RequestMessage.RequestUri.ToString(), res.result.Headers.CacheControl));
-
-                }
-                return body;
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("{0} Exception caught.", e);
-            }
-            return null;
+			callback.OnSuccess (request.ParseResponse (body).Result);
         }
 
-        public void Connect(string uri, HTTPMethod method)
-        {
-            StringRequestContext request = new StringRequestContext(method, uri);
+		public string ConnectSync(string uri, HTTPMethod method)
+		{
+			StringRequestContext request = new StringRequestContext(method, uri);
 
-            RestClient.ExecuteRequest(request);
-        }
+			if (Listener != null && Listener.InMemoryCache.HasInCache (uri: uri)) {
+				#if DEBUG
+				LogHelper.Log ("CORE: in cache");
+				LogHelper.Log ("CORE: response body from cache is " + Listener.InMemoryCache.GetFromCache (uri: uri));
+				#endif
+				return Listener.InMemoryCache.GetFromCache (uri: uri);
+			} else {
+				#if DEBUG
+				LogHelper.Log ("CORE: not in cache");
+				#endif
+				var task = new Task<string> (() => {	
+					var requestTask = RestClient.ExecuteRequest (request);
+					var transformedResponse = requestTask.Result;
+
+					var readTask = transformedResponse.Result.Content.ReadAsStringAsync ();
+					var str = readTask.Result;
+					#if DEBUG
+					LogHelper.Log ("CORE: response body is " + str);
+					#endif
+
+					// Trigger cache listener
+					BindListenerAfterReadingResponse (str, transformedResponse.Result.RequestMessage.RequestUri.ToString (), transformedResponse.Result.Headers.CacheControl);
+
+					return str;
+
+				});
+				task.RunSynchronously ();
+
+				return task.Result;
+			}
+		}
+
+		private void BindListenerAfterReadingResponse(string body, string uri, CacheControlHeaderValue cacheControlValue) {
+			if (_useCaching) {
+				#if DEBUG
+				LogHelper.Log ("CORE: notify listener");
+				#endif
+				OnChanged (new ResponseEventArgs (body, uri, cacheControlValue));
+			}
+		}
 
         /// <summary>
         /// Builder used to construct a gateway
         /// </summary>
-        public class Builder
-        {
-
-            private string _uri;
-            public Builder Uri(string uri)
-            {
-                _uri = uri;
-                return this;
-            }
-
-            private string _method;
-            public Builder Method(string method)
-            {
-                _method = method;
-                return this;
-            }
-
-            public APGateway Build()
-            {
-                APGateway gw = new APGateway();
-
-                gw.Uri = _uri;
-                gw.Method = _method;
-
-                return gw;
-            }
-        }
+//        public class Builder<T> where T : APGateway
+//        {
+//
+//            private string _uri;
+//            public Builder<T> Uri(string uri)
+//            {
+//                _uri = uri;
+//                return this;
+//            }
+//
+//            private string _method;
+//            public Builder<T> Method(string method)
+//            {
+//                _method = method;
+//                return this;
+//            }
+//
+//            public T Build()
+//            {
+//                T gw = default(T);
+//
+//
+//                gw.Uri = _uri;
+//                gw.Method = _method;
+//
+//                return gw;
+//            }
+//        }
     }
 
 

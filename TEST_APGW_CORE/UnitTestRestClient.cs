@@ -40,14 +40,14 @@ namespace TEST_APGW_CORE
                 var response = restClient.ExecuteRequest(s);
 				response.Wait();
 				TransformedResponse<HttpResponseMessage> tt =  response.Result;
-				str = await tt.result.Content.ReadAsStringAsync();
+				str = await tt.Result.Content.ReadAsStringAsync();
             });
             t.Wait();
             Assert.AreEqual("{'name' : 'foobar'}", str);
 
-			Console.WriteLine ("@@  done");
-
             mockHttp.Flush();
         }
+
+
     }
 }
