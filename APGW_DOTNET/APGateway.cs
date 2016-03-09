@@ -40,8 +40,6 @@ namespace APGW_DOTNET
 		}
 
 		public APGateway UsePinning(bool state) {
-			ShouldUseCache = state;
-
 			if (state == true) {
 				ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(CertPolicy.ValidateServerCertificate);
 				ServicePointManager.MaxServicePointIdleTime = 0;

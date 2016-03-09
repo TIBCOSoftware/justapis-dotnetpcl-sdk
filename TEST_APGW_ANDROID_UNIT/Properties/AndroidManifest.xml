@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="TEST_APGW_ANDROID_UNIT.TEST_APGW_ANDROID_UNIT">
+	<uses-sdk />
+	<application android:label="TEST_APGW_ANDROID_UNIT"></application>
+</manifest>

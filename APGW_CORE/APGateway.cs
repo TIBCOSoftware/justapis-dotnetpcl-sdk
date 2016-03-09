@@ -120,25 +120,25 @@ namespace APGW
 				#if DEBUG
 				LogHelper.Log ("CORE: not in cache");
 				#endif
-				var task = new Task<string> (() => {	
-					var requestTask = RestClient.ExecuteRequest (request);
-					var transformedResponse = requestTask.Result;
+                var task = new Task<string>(() => {    
+                    var requestTask = RestClient.ExecuteRequest (request).GetAwaiter().GetResult();
 
-					var readTask = transformedResponse.Result.Content.ReadAsStringAsync ();
-					var str = readTask.Result;
-					#if DEBUG
-					LogHelper.Log ("CORE: response body is " + str);
-					#endif
+                    var str =  requestTask.Result.Content.ReadAsStringAsync ().GetAwaiter().GetResult();
 
-					// Trigger cache listener
-					BindListenerAfterReadingResponse (str, transformedResponse.Result.RequestMessage.RequestUri.ToString (), transformedResponse.Result.Headers.CacheControl);
+                    #if DEBUG
+                    LogHelper.Log ("CORE: response body is " + str);
+                    #endif
 
-					return str;
+                    // Trigger cache listener
+                    BindListenerAfterReadingResponse (str, requestTask.Result.RequestMessage.RequestUri.ToString (), requestTask.Result.Headers.CacheControl);
 
-				});
+                    return str;
+
+                });
 				task.RunSynchronously ();
 
 				return task.Result;
+
 			}
 		}
 

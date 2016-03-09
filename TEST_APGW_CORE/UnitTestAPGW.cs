@@ -30,7 +30,7 @@ namespace TEST_APGW_CORE
 
 		[Test]
 		public void TestMe() {
-			APGateway.Builder builder = new APGateway.Builder ();
+            APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway>();
 			builder.Uri ("http://localhost");
 
 			APGateway gw = builder.Build ();
@@ -48,7 +48,7 @@ namespace TEST_APGW_CORE
 			mockHttp.When("http://localhost/api/user/*")
 				.Respond("application/json", "{'name' : 'foobar2'}"); // Respond with JSON
 
-			APGateway.Builder builder = new APGateway.Builder ();
+            APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway> ();
 			builder.Uri ("http://localhost/api/user/foo");
 
 			APGateway gateway = builder.Build ();
@@ -70,7 +70,7 @@ namespace TEST_APGW_CORE
 			mockHttp.When("http://localhost/api/user/*")
 				.Respond("application/json", "{'name' : 'foobar2'}"); // Respond with JSON
 
-			APGateway.Builder builder = new APGateway.Builder ();
+            APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway>();
 			builder.Uri ("http://localhost/api/user/foo");
 
 			APGateway gateway = builder.Build ();

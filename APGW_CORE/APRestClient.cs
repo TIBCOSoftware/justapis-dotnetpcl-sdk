@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Runtime;
-using Xamarin.Forms;
 using Autofac;
 
 namespace APGW

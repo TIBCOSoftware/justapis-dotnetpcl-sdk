@@ -1,5 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
+using APGW_Android;
+
 
 namespace TEST_APGW_ANDROID_UNIT
 {
@@ -23,6 +25,18 @@ namespace TEST_APGW_ANDROID_UNIT
         {
             Console.WriteLine ("test1");
             Assert.True (true);
+        }
+
+        [Test]
+        public void SetupGateway ()
+        {
+            APGatewayBuilder g = new APGatewayBuilder ();
+            g.Uri ("http://localhost");
+
+            APGateway gw = g.Build ();
+
+            Assert.True (true);
+
         }
 
         [Test]

@@ -2,7 +2,7 @@
 
 namespace APGW_DOTNET
 {
-    public class APGatewayBuilder
+    public class APGatewayBuilder : APGW.APGatewayBuilder<APGateway>
     {
         public APGatewayBuilder ()
         {

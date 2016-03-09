@@ -21,7 +21,7 @@ namespace TEST_APGW_CORE
 
         [Test]
         public void test_Handler() {
-            APGateway.Builder builder = new APGateway.Builder();
+            APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway>();
             builder.Method(HTTPMethod.GET.ToString());
 			builder.Uri("http://localhost/api/user/cacheMe/");
             APGateway gw = builder.Build();
@@ -59,14 +59,41 @@ namespace TEST_APGW_CORE
 
 			body = gw.GetSync("foo");
 			Assert.AreEqual("{'name' : 'foobar'}", body);
-
         }
+
+		[Test]
+		public void test_Handler_Client_Disabled_Caching() {
+            APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway>();
+			builder.Method(HTTPMethod.GET.ToString());
+			builder.Uri("http://localhost/api/user/cacheMe/");
+			APGateway gw = builder.Build();
+
+			var mockHttp = new MockHttpMessageHandler();
+
+			// Setup a respond for the user api (including a wildcard in the URL)
+			mockHttp.When("http://localhost/api/user/cacheMe/*")
+				.Respond("application/json", "{'name' : 'foobar'}"); // Respond with JSON
+
+			InMemoryCacheHandler cache = new InMemoryCacheHandler();
+
+			gw.RestClient = new APRestClient(mockHttp, cache);
+			var listener = new CacheEventListener (gw, cache);
+
+			cache.AddListener(listener);
+
+			var body = gw.UseCaching(false).GetSync("/cacheMe");
+
+			Assert.AreEqual("{'name' : 'foobar'}", body);
+			Assert.AreEqual(0, cache.Count());
+
+			mockHttp.Flush();
+		}
 
 
 		[Test]
         public void test_NoCache()
         {
-            APGateway.Builder builder = new APGateway.Builder();
+            APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway>();
             builder.Method(HTTPMethod.GET.ToString());
             builder.Uri("http://localhost/api/user/");
             APGateway gw = builder.Build();
