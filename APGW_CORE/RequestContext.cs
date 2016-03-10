@@ -16,6 +16,9 @@ namespace APGW
         public APGateway Gateway { get; set; }
         public HTTPMethod Method { get; set; }
 
+		public RequestContext() {
+		}
+
         public RequestContext(HTTPMethod method, string url) {
             Method = method;
             Url = url;
@@ -27,6 +30,8 @@ namespace APGW
         }
 
         public abstract  TransformedResponse<T> ParseResponse(ResponseFromRequest responseFromRequest, Exception e);
+
+		public abstract  TransformedResponse<T> ParseResponse(string response);
 
 
     }

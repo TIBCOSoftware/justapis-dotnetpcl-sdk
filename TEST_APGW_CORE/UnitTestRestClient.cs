@@ -15,12 +15,12 @@ using Autofac;
 
 namespace TEST_APGW_CORE
 {
-	public class UnitTestRestClient : BaseUnitTest
+    public class UnitTestRestClient : BaseUnitTest
     {
-		[SetUp]
-		public void Setup() {
-			SetupDI ();
-		}
+        [SetUp]
+        public void Setup() {
+            SetupDI ();
+        }
 
         [Test]
         public void TestGetRestClient()
@@ -29,25 +29,25 @@ namespace TEST_APGW_CORE
 
             // Setup a respond for the user api (including a wildcard in the URL)
             mockHttp.When("http://localost/api/user/*")
-                    .Respond("application/json", "{'name' : 'foobar'}"); // Respond with JSON
+                .Respond("application/json", "{'name' : 'foobar'}"); // Respond with JSON
 
             string str = "";
             Task t = Task.Run(async () =>
-            {
-                APRestClient restClient = new APRestClient(mockHttp);
-                StringRequestContext s = new StringRequestContext(HTTPMethod.GET, "http://localost/api/user/v1");
+                {
+                    APRestClient restClient = new APRestClient(mockHttp);
+                    StringRequestContext s = new StringRequestContext(HTTPMethod.GET, "http://localost/api/user/v1");
 
-                var response = restClient.ExecuteRequest(s);
-				response.Wait();
-				TransformedResponse<HttpResponseMessage> tt =  response.Result;
-				str = await tt.result.Content.ReadAsStringAsync();
-            });
+                    var response = restClient.ExecuteRequest(s);
+                    response.Wait();
+
+                    str = await response.Result.ReadResponseBodyAsString();
+                });
             t.Wait();
             Assert.AreEqual("{'name' : 'foobar'}", str);
 
-			Console.WriteLine ("@@  done");
-
             mockHttp.Flush();
         }
+
+
     }
 }

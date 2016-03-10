@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Runtime;
+using Autofac;
 
 namespace APGW
 {
-
 
     public class APRestClient : IAPRestClient
     {
@@ -64,23 +64,35 @@ namespace APGW
         {
             HttpResponseMessage response = await httpClient.GetAsync(context.Url);
             responseBody = response;
+
             return response;
         }
 
-        public TransformedResponse<HttpResponseMessage> ReadResponse()
+        public TransformedResponseHttpClient ReadResponse()
         {
-            return new TransformedResponse<HttpResponseMessage>(responseBody);
+            return new TransformedResponseHttpClient(responseBody);
         }
 
-        public Task<HttpResponseMessage> ExecuteRequest<T>(RequestContext<T> request)
+        public async Task<IResponse> ExecuteRequest<T>(RequestContext<T> request)
         {
+            LogHelper.Log ("Executing request: " + request.Url);
             if (request.Method == HTTPMethod.POST || request.Method == HTTPMethod.PUT) {
                 // Send a post
-                return Post(request);
+                HttpResponseMessage result = await Post(request);
+                LogHelper.Log ("CORE: finished getting response");               
+
+                IResponse response = new HttpClientResponse (result);
+
+                return response;
             }
             else { 
                 // Send a get
-                return Get(request);
+                HttpResponseMessage result = await Get(request);
+                LogHelper.Log ("CORE: finished getting response");
+
+                IResponse response = new HttpClientResponse (result);
+
+                return response;
             }
         }
     }

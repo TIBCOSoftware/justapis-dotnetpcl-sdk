@@ -26,7 +26,7 @@ namespace TEST_APGW_CORE
         [Test]
         public void TestGatewaySetup()
         {
-            APGateway.Builder builder = new APGateway.Builder();
+            APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway>();
 
             builder.Uri("http://localhost/api/v1");
 
