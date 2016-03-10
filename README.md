@@ -11,6 +11,8 @@ APGW_CORE library
 
 System.Net.Http - From NuGet
 
+Autofac - From NuGet
+
 
 Introduction
 ==========
@@ -32,40 +34,95 @@ An instance should be created using a builder (APGatewayBuilder).
 Setup
 ===========
 
+Unpack the zip file to find APGW_|platform|.dll and AGPW_CORE.dll. Place these as dependent assemblies into your app.
+
+Bootstrap the SDK by doing:
+
+```
+Common.Config.Setup();
+```
+
 Examples
 ===========
 
-Sends an asynchnronous request
+Create an APGateway builder with a base url of http://localhost/api/v1/
 
 ```
     APGatewayBuilder builder = new APGatewayBuilder ();
-    builder.Uri ("http://localhost/api/v1/foo");
+    builder.Uri ("http://localhost/api/v1/");
+    APGateway gw = builder.Build ();
+```
+
+
+Sends an asynchronous request with "/foo" appended to base url
+
+```
+    APGatewayBuilder builder = new APGatewayBuilder ();
+    builder.Uri ("http://localhost/api/v1/");
     APGateway gw = builder.Build ();
 
-    gw.GetAsync ("/foo", new APGW.StringCallback () {
+    // Send the request to http://localhost/api/v1/foo
+    gw.GetAsync (url: "/foo", callback: new APGW.StringCallback () {
         OnSuccess = (res) => {
             Console.WriteLine (res);
-        },                 ,
+        },                 
         OnError = (error) => {
             Console.WriteLine(error.Message);
         }   
     });
 ```
 
-Sends a synchronous request
+```
+    APGatewayBuilder builder = new APGatewayBuilder ();
+    builder.Uri ("http://localhost/api/v1/");
+    APGateway gw = builder.Build ();
+
+    // Send the request to http://localhost/api/v1/foo
+    gw.PostAsync (url: "/foo", callback: new APGW.StringCallback () {
+        OnSuccess = (res) => {
+            Console.WriteLine (res);
+        },                 
+        OnError = (error) => {
+            Console.WriteLine(error.Message);
+        }   
+    });
+```
+
+Sends a synchronous request with "/foo" appended to base url
 
 ```
     APGatewayBuilder builder = new APGatewayBuilder ();
-    builder.Uri ("http://localhost/api/v1/foo");
+    builder.Uri ("http://localhost/api/v1/");
     APGateway gw = builder.Build ();
 
     System.Threading.ThreadPool.QueueUserWorkItem((s) => {
-      var result = gw.GetSync ("/foo");
+      // Send the request to http://localhost/api/v1/foo
+      var result = gw.GetSync (url: "/foo");
     });
 ```
 
 Certificate Pinning
 ===========
 
-Caching
-===========
+
+Certificate pinning allows you to tie certificates against specified domains. It defends against attacks on certificate authorities.
+It has it's limitations as well. We require the base64 encoded hashed SubjectPublicKeyInfo. See the example below for google.com
+
+Example:
+```
+        APGW.CertManager.addCert ("localhost", dataAsByteArray);
+
+        APGatewayBuilder builder = new APGatewayBuilder ();
+        builder.Uri ("http://localhost/api/v1/");
+        APGateway gw = builder.Build ();
+
+        gw.UsePinning (true).GetAsync (url: "/foo", callback: new APGW.StringCallback () {
+            OnSuccess = (res) => {
+                Console.WriteLine (res);
+            },                 
+            OnError = (error) => {
+                Console.WriteLine(error.Message);
+            }   
+        });
+
+```
