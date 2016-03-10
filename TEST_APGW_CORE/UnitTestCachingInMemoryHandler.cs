@@ -12,7 +12,7 @@ using Xamarin.UITest.Queries;
 
 namespace TEST_APGW_CORE
 {
-    public class UnitTestHandler: BaseUnitTest
+    public class UnitTestCachingInMemoryHandler: BaseUnitTest
     {
 		[SetUp]
 		public void Setup() {

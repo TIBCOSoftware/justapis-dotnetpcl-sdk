@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace APGW
 {
+    /// <summary>
+    /// Cert manager.
+    /// </summary>
 	public class CertManager
 	{
 		static Dictionary<string,byte[]> certs = new Dictionary<string,byte[]>();

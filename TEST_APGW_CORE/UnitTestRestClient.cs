@@ -23,7 +23,7 @@ namespace TEST_APGW_CORE
         }
 
         [Test]
-        public void TestGetRestClient()
+        public void Test_GetRestClient()
         {
             var mockHttp = new MockHttpMessageHandler();
 
@@ -47,7 +47,6 @@ namespace TEST_APGW_CORE
 
             mockHttp.Flush();
         }
-
 
     }
 }

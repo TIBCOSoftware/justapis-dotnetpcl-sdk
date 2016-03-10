@@ -44,7 +44,7 @@ namespace TEST_APGW_CORE
 
             // Setup a respond for the user api (including a wildcard in the URL)
             mockHttp.When("http://localost/api/user/*")
-                    .Respond("application/json", "{'name' : 'foobar'}"); // Respond with JSON
+                    .Respond("application/json", "{'name' : 'foobar'}");
 
             // Inject the handler or client into your application code
             using (var client = new HttpClient(mockHttp))

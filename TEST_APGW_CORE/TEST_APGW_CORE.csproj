@@ -63,12 +63,12 @@
     <Compile Include="AppInitializer.cs" />
     <Compile Include="UnitTestAPGW.cs" />
     <Compile Include="UnitTestGatewaySetup.cs" />
-    <Compile Include="UnitTestHandler.cs" />
     <Compile Include="UnitTestLRUCache.cs" />
     <Compile Include="UnitTestRestClient.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="BaseUnitTest.cs" />
     <Compile Include="UnitTestUtilities.cs" />
+    <Compile Include="UnitTestCachingInMemoryHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

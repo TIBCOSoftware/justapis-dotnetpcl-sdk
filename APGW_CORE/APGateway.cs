@@ -22,8 +22,6 @@ namespace APGW
 
         public CacheEventListener Listener { get; set; }
 
-
-
         public event ChangedEventHandler Changed;
 
         public static CertManager CertManager { get; set; }

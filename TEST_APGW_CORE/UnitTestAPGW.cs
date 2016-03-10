@@ -29,7 +29,7 @@ namespace TEST_APGW_CORE
 		}
 
 		[Test]
-		public void Test_CreateGateway() {
+		public void Test_CreateGatewayObject() {
             APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway>();
 			builder.Uri ("http://localhost");
 
@@ -49,8 +49,9 @@ namespace TEST_APGW_CORE
             var mockHttp = new MockHttpMessageHandler();
             // Setup a respond for the user api (including a wildcard in the URL)
             mockHttp.When("http://localhost/api/v1/*")
-                .Respond("application/json", "{'name' : 'foobar2'}"); // Respond with JSON
+                .Respond("application/json", "{'name' : 'foobar2'}");
 
+            // Set a special handler for mocking
             gw.RestClient = new APRestClient (mockHttp);
 
             var str = gw.GetSync ();
@@ -66,7 +67,7 @@ namespace TEST_APGW_CORE
 
 			// Setup a respond for the user api (including a wildcard in the URL)
 			mockHttp.When("http://localhost/api/user/*")
-				.Respond("application/json", "{'name' : 'foobar2'}"); // Respond with JSON
+				.Respond("application/json", "{'name' : 'foobar2'}"); 
 
             APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway> ();
 			builder.Uri ("http://localhost/api/user/foo");
@@ -88,7 +89,7 @@ namespace TEST_APGW_CORE
 
 			// Setup a respond for the user api (including a wildcard in the URL)
 			mockHttp.When("http://localhost/api/user/*")
-				.Respond("application/json", "{'name' : 'foobar2'}"); // Respond with JSON
+				.Respond("application/json", "{'name' : 'foobar2'}");
 
             APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway>();
 			builder.Uri ("http://localhost/api/user/foo");
@@ -123,7 +124,7 @@ namespace TEST_APGW_CORE
 
             // Setup a respond for the user api (including a wildcard in the URL)
             mockHttp.When("http://localhost/api/user/*")
-                .Respond("application/json", "{'name' : 'foobar2'}"); // Respond with JSON
+                .Respond("application/json", "{'name' : 'foobar2'}");
 
             APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway> ();
             builder.Uri ("http://localhost/api/user/foo");
