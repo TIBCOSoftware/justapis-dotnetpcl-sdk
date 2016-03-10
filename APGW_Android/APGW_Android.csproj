@@ -62,6 +62,7 @@
     <Compile Include="APGateway.cs" />
     <Compile Include="CertPolicy.cs" />
     <Compile Include="APGatewayBuilder.cs" />
+    <Compile Include="Config.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

@@ -29,7 +29,7 @@ namespace TEST_APGW_CORE
 		}
 
 		[Test]
-		public void TestMe() {
+		public void Test_CreateGateway() {
             APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway>();
 			builder.Uri ("http://localhost");
 
@@ -38,6 +38,26 @@ namespace TEST_APGW_CORE
 			Assert.IsNotNull (gw);
 			Assert.AreEqual ("http://localhost", gw.Uri);			
 		}
+
+        [Test]
+        public void Test_UpdateUrl() {
+            APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway>();
+            builder.Uri ("http://localhost/api/v1/foo");
+
+            APGateway gw = builder.Build ();
+
+            var mockHttp = new MockHttpMessageHandler();
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When("http://localhost/api/v1/*")
+                .Respond("application/json", "{'name' : 'foobar2'}"); // Respond with JSON
+
+            gw.RestClient = new APRestClient (mockHttp);
+
+            var str = gw.GetSync ();
+            Assert.AreEqual("{'name' : 'foobar2'}", str);
+
+            mockHttp.Flush ();
+        }
 
 		[Test]
 		public void Test_Get_Sync()
@@ -54,7 +74,7 @@ namespace TEST_APGW_CORE
 			APGateway gateway = builder.Build ();
 			gateway.RestClient = new APRestClient (mockHttp);
 
-			var str = gateway.GetSync("foo");		
+			var str = gateway.GetSync(url: "foo");		
 
 			Assert.AreEqual("{'name' : 'foobar2'}", str);
 
@@ -80,7 +100,7 @@ namespace TEST_APGW_CORE
 			System.Threading.CountdownEvent CountDown = new System.Threading.CountdownEvent(1);
 			string result = null;
 
-			gateway.GetAsync ("/foo", new StringCallback () { 
+			gateway.GetAsync (url: "/foo", callback: new StringCallback () { 
 				OnSuccess = (string s) => { 
 					Console.WriteLine("result: " + s);
 
@@ -95,6 +115,28 @@ namespace TEST_APGW_CORE
 
 			mockHttp.Flush();
 		}
+
+        [Test]
+        public void Test_Post_Sync()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When("http://localhost/api/user/*")
+                .Respond("application/json", "{'name' : 'foobar2'}"); // Respond with JSON
+
+            APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway> ();
+            builder.Uri ("http://localhost/api/user/foo");
+
+            APGateway gateway = builder.Build ();
+            gateway.RestClient = new APRestClient (mockHttp);
+
+            var str = gateway.PostSync("foo");       
+
+            Assert.AreEqual("{'name' : 'foobar2'}", str);
+
+            mockHttp.Flush();
+        }
 	}
 }
 

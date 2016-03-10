@@ -79,14 +79,14 @@ namespace APGW
             if (request.Method == HTTPMethod.POST || request.Method == HTTPMethod.PUT) {
                 // Send a post
 				HttpResponseMessage result = await Post(request);
-				LogHelper.Log ("@@ finished getting response");
+				LogHelper.Log ("CORE: finished getting response");
 
 				return new TransformedResponse<HttpResponseMessage> (result);
             }
             else { 
                 // Send a get
 				HttpResponseMessage result = await Get(request);
-				LogHelper.Log ("@@ finished getting response");
+				LogHelper.Log ("CORE: finished getting response");
 
 				return new TransformedResponse<HttpResponseMessage> (result);
             }

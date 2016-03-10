@@ -67,22 +67,47 @@ namespace APGW
         /// 
         /// </summary>
         /// <param name="url"></param>
-		public string GetSync(string url)
+		public string GetSync(string url="")
         {
-            var str = ExecuteSync(HTTPMethod.GET);
-			return str;
+            return ExecuteSync(Utilities.UpdateUrl(Uri, url), HTTPMethod.GET);
         }
 
-		public async void GetAsync<T>(string url, Callback<T> callback) {
-			Execute(HTTPMethod.GET, callback);
+        /// <summary>
+        /// Gets the async.
+        /// </summary>
+        /// <param name="url">URL.</param>
+        /// <param name="callback">Callback.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public async void GetAsync<T>(Callback<T> callback, string url="") {
+            Execute(Utilities.UpdateUrl(Uri, url), HTTPMethod.GET, callback);
 		}
 
-		public async void Execute<T>(HTTPMethod method, Callback<T> callback)
+        /// <summary>
+        /// Posts the sync.
+        /// </summary>
+        /// <param name="url">URL.</param>
+        public string PostSync(string url="")
+        {
+            return ExecuteSync(Utilities.UpdateUrl(Uri, url), HTTPMethod.POST);
+        }
+
+        /// <summary>
+        /// Posts A sync.
+        /// </summary>
+        /// <param name="url">URL.</param>
+        /// <param name="callback">Callback.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public void PostASync<T>(Callback<T> callback, string url="")
+        {
+            Execute(Utilities.UpdateUrl(Uri, url), HTTPMethod.POST, callback);
+        }
+
+		public async void Execute<T>(string url, HTTPMethod method, Callback<T> callback)
         {
 			Connect(Uri, method, callback);
         }
 
-		public string ExecuteSync(HTTPMethod method)
+        public string ExecuteSync(string url, HTTPMethod method)
 		{
 			return ConnectSync(Uri, method);
 		}			
@@ -151,37 +176,6 @@ namespace APGW
 			}
 		}
 
-        /// <summary>
-        /// Builder used to construct a gateway
-        /// </summary>
-//        public class Builder<T> where T : APGateway
-//        {
-//
-//            private string _uri;
-//            public Builder<T> Uri(string uri)
-//            {
-//                _uri = uri;
-//                return this;
-//            }
-//
-//            private string _method;
-//            public Builder<T> Method(string method)
-//            {
-//                _method = method;
-//                return this;
-//            }
-//
-//            public T Build()
-//            {
-//                T gw = default(T);
-//
-//
-//                gw.Uri = _uri;
-//                gw.Method = _method;
-//
-//                return gw;
-//            }
-//        }
     }
 
 
