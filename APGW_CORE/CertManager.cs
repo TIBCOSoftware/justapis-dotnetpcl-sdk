@@ -6,11 +6,7 @@ namespace APGW
 	public class CertManager
 	{
 		static Dictionary<string,byte[]> certs = new Dictionary<string,byte[]>();
-
-
-//		public CertManager ()
-//		{
-//		}
+       
 
 		public static void addCert(string alias, byte[] data) {
 			certs.Add (alias, data);

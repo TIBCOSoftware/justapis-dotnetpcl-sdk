@@ -53,6 +53,9 @@
     <Compile Include="StringCallback.cs" />
     <Compile Include="APGatewayBuilder.cs" />
     <Compile Include="Utilities.cs" />
+    <Compile Include="CacheControlOptions.cs" />
+    <Compile Include="HttpClientResponse.cs" />
+    <Compile Include="IResponse.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

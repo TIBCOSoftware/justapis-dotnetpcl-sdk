@@ -1,7 +1,7 @@
 ﻿using System;
 using Autofac;
 
-namespace C
+namespace Common
 {
     public class Config
     {

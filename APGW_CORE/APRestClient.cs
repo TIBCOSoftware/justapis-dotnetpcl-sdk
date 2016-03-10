@@ -11,7 +11,7 @@ using Autofac;
 namespace APGW
 {
 
-	public class APRestClient : IAPRestClient<TransformedResponse<HttpResponseMessage>>
+    public class APRestClient : IAPRestClient
     {
         private HttpClient httpClient;
         private HttpResponseMessage responseBody;
@@ -60,35 +60,39 @@ namespace APGW
             return response;
         }
 
-		private async Task<HttpResponseMessage> Get<T>(RequestContext<T> context)
+        private async Task<HttpResponseMessage> Get<T>(RequestContext<T> context)
         {
             HttpResponseMessage response = await httpClient.GetAsync(context.Url);
-			responseBody = response;
+            responseBody = response;
 
-			return response;
+            return response;
         }
 
-        public TransformedResponse<HttpResponseMessage> ReadResponse()
+        public TransformedResponseHttpClient ReadResponse()
         {
-            return new TransformedResponse<HttpResponseMessage>(responseBody);
+            return new TransformedResponseHttpClient(responseBody);
         }
 
-		public async Task<TransformedResponse<HttpResponseMessage>> ExecuteRequest<T>(RequestContext<T> request)
+        public async Task<IResponse> ExecuteRequest<T>(RequestContext<T> request)
         {
-			LogHelper.Log ("Executing request: " + request.Url);
+            LogHelper.Log ("Executing request: " + request.Url);
             if (request.Method == HTTPMethod.POST || request.Method == HTTPMethod.PUT) {
                 // Send a post
-				HttpResponseMessage result = await Post(request);
-				LogHelper.Log ("CORE: finished getting response");
+                HttpResponseMessage result = await Post(request);
+                LogHelper.Log ("CORE: finished getting response");               
 
-				return new TransformedResponse<HttpResponseMessage> (result);
+                IResponse response = new HttpClientResponse (result);
+
+                return response;
             }
             else { 
                 // Send a get
-				HttpResponseMessage result = await Get(request);
-				LogHelper.Log ("CORE: finished getting response");
+                HttpResponseMessage result = await Get(request);
+                LogHelper.Log ("CORE: finished getting response");
 
-				return new TransformedResponse<HttpResponseMessage> (result);
+                IResponse response = new HttpClientResponse (result);
+
+                return response;
             }
         }
     }

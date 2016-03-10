@@ -16,16 +16,20 @@ using System.Net.Http;
 using System.Net;
 using APGW;
 using System.Threading.Tasks;
+using Common;
 
 namespace APGW_Android
 {
     public class APGateway: APGW.APGateway
     {
         public APGateway ()
-        {           
+        {   
+            RestClient = new APHttpWebRequestClient ();
         }
 
-        public APGateway UsePinning(bool state) {
+        public APGateway UsePinning(bool state) {            
+            base.UsePinning (state);
+
             if (state == true) {
                 ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(CertPolicy.ValidateServerCertificate);
                 ServicePointManager.MaxServicePointIdleTime = 0;
@@ -34,4 +38,3 @@ namespace APGW_Android
         }
     }
 }
-

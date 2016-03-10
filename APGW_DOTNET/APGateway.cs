@@ -27,26 +27,30 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Net.Security;
 using System.Linq;
+using Common;
 
 namespace APGW_DOTNET
 {
-	/// <summary>
-	/// AP gateway.
-	/// </summary>
-	public class APGateway : APGW.APGateway
-	{
-		public APGateway ()
-		{			
-		}
+    /// <summary>
+    /// AP gateway.
+    /// </summary>
+    public class APGateway : APGW.APGateway
+    {
+        public APGateway ()
+        {   
+            RestClient = new APHttpWebRequestClient ();
+        }
 
-		public APGateway UsePinning(bool state) {
-			if (state == true) {
-				ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(CertPolicy.ValidateServerCertificate);
-				ServicePointManager.MaxServicePointIdleTime = 0;
-			}
-			return this;
-		}
-			
-	}
+        public APGateway UsePinning(bool state) {            
+            base.UsePinning (state);
+
+            if (state == true) {
+                ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(CertPolicy.ValidateServerCertificate);
+                ServicePointManager.MaxServicePointIdleTime = 0;
+            }
+            return this;
+        }
+
+    }
 }
 

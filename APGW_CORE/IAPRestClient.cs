@@ -9,10 +9,8 @@ using System.Runtime;
 
 namespace APGW
 {
-    public interface IAPRestClient<U>
+    public interface IAPRestClient
     {
-        U ReadResponse();
-
-        Task<U> ExecuteRequest<T>(RequestContext<T> request);
+        Task<IResponse> ExecuteRequest<T>(RequestContext<T> request);
     }
 }
