@@ -3,6 +3,9 @@ using System.Net;
 using System.Threading.Tasks;
 using APGW;
 using System.Security.Cryptography.X509Certificates;
+using System.IO;
+using System.Text;
+using System.Collections.Generic;
 
 namespace Common
 {
@@ -41,34 +44,78 @@ namespace Common
             }
         }
 
+        private async Task<WebResponse> Post(HttpWebRequest client, string url, Dictionary<string,string> body) {
+            client.Method = "POST";
+
+            client = WriteDataToRequestStream (body, client);
+       
+            WebResponse response = await client.GetResponseAsync ();
+            return response;
+        }
+
+        private async Task<WebResponse> Put(HttpWebRequest client, string url, Dictionary<string,string> body) {
+            client.Method = "PUT";
+
+            client = WriteDataToRequestStream (body, client);
+
+            WebResponse response = await client.GetResponseAsync ();
+            return response;
+        }
+
+        private async Task<WebResponse> Delete(HttpWebRequest client, string url) {
+            client.Method = "DELETE";
+
+            WebResponse response = await client.GetResponseAsync ();
+            return response;
+        }
+
+        private async Task<WebResponse> Get(HttpWebRequest client, string url) {
+            client.Method = "GET";
+
+            WebResponse response = await client.GetResponseAsync ();
+            return response;
+        }
+
+        private HttpWebRequest WriteDataToRequestStream(Dictionary<string,string> body, HttpWebRequest client) {
+            var encoder = new APGW.JsonRequestEncoding ();
+            byte[] byteArray = Encoding.UTF8.GetBytes (encoder.Encode(body));
+
+            client.ContentType = encoder.Encoding ();
+            client.ContentLength = byteArray.Length;
+            Stream dataStream = client.GetRequestStream ();
+            dataStream.Write (byteArray, 0, byteArray.Length);
+            dataStream.Close ();
+
+            return client;            
+        }
+
+        private HttpWebRequest Pin<T>(HttpWebRequest client, RequestContext<T> request) {
+            if (request.Gateway != null && request.Gateway.ShouldUsePinning ()) {
+                PinCerts (client);
+            }  
+
+            return client;
+        }
+
         public async Task<IResponse> ExecuteRequest<T>(RequestContext<T> request) {
             LogHelper.Log ("Executing request with HttpWebRequest: " + request.Url);
 
-            var client = CreateClient (request.Url);
+            var client = Pin (CreateClient (request.Url), request);
 
-            if (request.Gateway != null && request.Gateway.ShouldUsePinning ()) {
-                PinCerts (client);
+            switch (request.Method) {
+            case HTTPMethod.POST:
+                return new HttpWebRequestResponse (await Post (client, request.Url, request.PostParam));
+            case HTTPMethod.PUT:
+                return new HttpWebRequestResponse (await Put (client, request.Url, request.PostParam));
+            case HTTPMethod.DELETE:
+                return new HttpWebRequestResponse (await Delete (client, request.Url));
+            case HTTPMethod.GET:
+                return new HttpWebRequestResponse (await Get (client, request.Url));
+            default:
+                throw new Exception ("Request method not implemented");
             }
 
-            if (request.Method == HTTPMethod.POST || request.Method == HTTPMethod.PUT) {
-                // Send a post
-                client.Method = "POST";
-
-                LogHelper.Log ("CORE: finished getting response");
-
-                WebResponse response = await client.GetResponseAsync ();
-
-                return new HttpWebRequestResponse (response);
-            } else { 
-                // Send a get
-                client.Method = "GET";
-
-                LogHelper.Log ("CORE: finished getting response");
-
-                WebResponse response = await client.GetResponseAsync ();
-
-                return new HttpWebRequestResponse (response);
-            }   
+            LogHelper.Log ("CORE: finished getting response");
         }
             
     }

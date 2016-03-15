@@ -13,6 +13,8 @@ System.Net.Http - From NuGet
 
 Autofac - From NuGet
 
+Newtonsoft.JSON - From NuGet
+
 
 Introduction
 ==========
