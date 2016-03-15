@@ -79,7 +79,7 @@ namespace APGW
         /// <param name="url"></param>
         public string GetSync(string url="")
         {
-            return ExecuteSync(Utilities.UpdateUrl(Uri, url), HTTPMethod.GET);
+            return ExecuteSync(Utilities.UpdateUrl(Uri, url), null, HTTPMethod.GET);
         }
 
         /// <summary>
@@ -89,16 +89,16 @@ namespace APGW
         /// <param name="callback">Callback.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
         public async void GetAsync<T>(Callback<T> callback, string url="") {
-            Execute(Utilities.UpdateUrl(Uri, url), HTTPMethod.GET, callback);
+            Execute(Utilities.UpdateUrl(Uri, url), null, HTTPMethod.GET, callback);
         }
 
         /// <summary>
         /// Posts the sync.
         /// </summary>
         /// <param name="url">URL.</param>
-        public string PostSync(string url="")
+        public string PostSync(string url="", Dictionary<string,string> body=null)
         {
-            return ExecuteSync(Utilities.UpdateUrl(Uri, url), HTTPMethod.POST);
+            return ExecuteSync(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST);
         }
 
         /// <summary>
@@ -107,46 +107,48 @@ namespace APGW
         /// <param name="url">URL.</param>
         /// <param name="callback">Callback.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
-        public void PostASync<T>(Callback<T> callback, string url="")
+        public void PostASync<T>(Callback<T> callback, string url="", Dictionary<string,string> body=null)
         {
-            Execute(Utilities.UpdateUrl(Uri, url), HTTPMethod.POST, callback);
+            Execute(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST, callback);
         }
 
-        public async void Execute<T>(string url, HTTPMethod method, Callback<T> callback)
+        public async void Execute<T>(string url, Dictionary<string,string> body, HTTPMethod method, Callback<T> callback)
         {
-            Connect(Uri, method, callback);
+            Connect(Uri, body, method, callback);
         }
 
-        public string ExecuteSync(string url, HTTPMethod method)
+        public string ExecuteSync(string url, Dictionary<string,string> body, HTTPMethod method)
         {
-            return ConnectSync(Uri, method);
+            return ConnectSync(Uri, body, method);
         }           
 
-        public async void Connect<T>(string uri, HTTPMethod method, Callback<T> callback)
+        public async void Connect<T>(string uri, Dictionary<string,string> body, HTTPMethod method, Callback<T> callback)
         {
             var request = callback.CreateRequestContext ();
             request.Method = method;
             request.Url = uri;
             request.Gateway = this;
+            request.PostParam = body;
 
             var response = await RestClient.ExecuteRequest(request);
-            //var body = await response.Result.Content.ReadAsStringAsync ();
-            var body = await response.ReadResponseBodyAsString();
+
+            var responseBody = await response.ReadResponseBodyAsString();
             #if DEBUG
-            LogHelper.Log ("CORE: response body is " + body);
+            LogHelper.Log ("CORE: response body is " + responseBody);
             #endif
-            request.ParseResponse(body);
+            request.ParseResponse(responseBody);
 
             // Trigger cache listener
-            BindListenerAfterReadingResponse (body, response.RequestUri(), response.CacheControl());
+            BindListenerAfterReadingResponse (responseBody, response.RequestUri(), response.CacheControl());
 
-            callback.OnSuccess (request.ParseResponse (body).Result);
+            callback.OnSuccess (request.ParseResponse (responseBody).Result);
         }
 
-        public string ConnectSync(string uri, HTTPMethod method)
+        public string ConnectSync(string uri, Dictionary<string,string> body, HTTPMethod method)
         {
-            StringRequestContext request = new StringRequestContext(method, uri);
+            StringRequestContext request = new StringRequestContext(method, uri);           
             request.Gateway = this;
+            request.PostParam = body;
 
             if (Listener != null && Listener.InMemoryCache.HasInCache (uri: uri)) {
                 #if DEBUG

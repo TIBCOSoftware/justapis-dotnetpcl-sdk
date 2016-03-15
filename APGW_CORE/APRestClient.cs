@@ -7,6 +7,8 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Runtime;
 using Autofac;
+using Newtonsoft.Json;
+
 
 namespace APGW
 {
@@ -14,7 +16,6 @@ namespace APGW
     public class APRestClient : IAPRestClient
     {
         private HttpClient httpClient;
-        private HttpResponseMessage responseBody;
 
         /// <summary>
         /// 
@@ -52,48 +53,72 @@ namespace APGW
                 ((DelegatingHandler)customHandler).InnerHandler = baseSystemHandler;
                 httpClient = new HttpClient(customHandler);
             }
-        }
+        }                       
 
         private async Task<HttpResponseMessage> Post<T>(RequestContext<T> context)
         {
-            HttpResponseMessage response = await httpClient.PostAsync(context.Url, null);
+            StringContent content = new StringContent (SerializeBodyToJson(context.PostParam), 
+                                        Encoding.UTF8, "application/json");
+           
+            HttpResponseMessage response = await httpClient.PostAsync(context.Url, content);
             return response;
         }
 
         private async Task<HttpResponseMessage> Get<T>(RequestContext<T> context)
         {
             HttpResponseMessage response = await httpClient.GetAsync(context.Url);
-            responseBody = response;
-
             return response;
         }
 
-        public TransformedResponseHttpClient ReadResponse()
+        private async Task<HttpResponseMessage> Put<T>(RequestContext<T> context)
         {
-            return new TransformedResponseHttpClient(responseBody);
+            StringContent content = new StringContent (SerializeBodyToJson(context.PostParam), 
+                Encoding.UTF8, "application/json");
+            
+            HttpResponseMessage response = await httpClient.PutAsync (context.Url, content);
+            return response;
+        }
+
+        private async Task<HttpResponseMessage> Delete<T>(RequestContext<T> context)
+        {
+            HttpResponseMessage response = await httpClient.DeleteAsync (context.Url);
+            return response;
+        }
+
+        private string SerializeBodyToJson(Dictionary<string,string> body) {
+            if (body != null) {
+                return JsonConvert.SerializeObject (body).ToString ();      
+            } else {
+                return "";
+            }
         }
 
         public async Task<IResponse> ExecuteRequest<T>(RequestContext<T> request)
         {
             LogHelper.Log ("Executing request: " + request.Url);
-            if (request.Method == HTTPMethod.POST || request.Method == HTTPMethod.PUT) {
-                // Send a post
-                HttpResponseMessage result = await Post(request);
-                LogHelper.Log ("CORE: finished getting response");               
 
-                IResponse response = new HttpClientResponse (result);
-
-                return response;
+            HttpResponseMessage result = null;
+            switch (request.Method) {
+            case HTTPMethod.POST:
+                result = await Post(request);
+                break;            
+            case HTTPMethod.PUT:
+                result = await Put (request);
+                break;
+            case HTTPMethod.DELETE:
+                result = await Delete (request);
+                break;
+            case HTTPMethod.GET:
+                result = await Get(request);
+                break;
+            default:
+                throw new Exception("Request method not implemented");
             }
-            else { 
-                // Send a get
-                HttpResponseMessage result = await Get(request);
-                LogHelper.Log ("CORE: finished getting response");
 
-                IResponse response = new HttpClientResponse (result);
+            LogHelper.Log ("CORE: finished getting response");
+            IResponse response = new HttpClientResponse (result);
 
-                return response;
-            }
+            return response;
         }
     }
 }

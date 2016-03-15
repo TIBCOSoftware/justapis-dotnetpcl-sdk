@@ -138,6 +138,30 @@ namespace TEST_APGW_CORE
 
             mockHttp.Flush();
         }
+
+        [Test]
+        public void Test_Post_Sync_With_Body()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When("http://localhost/api/user/*")
+                .Respond("application/json", "{'name' : 'foobar2'}");            
+
+            APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway> ();
+            builder.Uri ("http://localhost/api/user/foo");
+
+            APGateway gateway = builder.Build ();
+            gateway.RestClient = new APRestClient (mockHttp);
+
+            Dictionary<string,string> body = new Dictionary<string,string> ();
+            body.Add ("foo", "bar");
+            var str = gateway.PostSync("foo", body);       
+
+            Assert.AreEqual("{'name' : 'foobar2'}", str);
+
+            mockHttp.Flush();
+        }
 	}
 }
 
