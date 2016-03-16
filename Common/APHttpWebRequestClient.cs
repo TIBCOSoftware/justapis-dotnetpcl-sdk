@@ -113,9 +113,7 @@ namespace Common
                 return new HttpWebRequestResponse (await Get (client, request.Url));
             default:
                 throw new Exception ("Request method not implemented");
-            }
-
-            LogHelper.Log ("CORE: finished getting response");
+            }                
         }
             
     }
