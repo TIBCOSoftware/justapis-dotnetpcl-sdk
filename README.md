@@ -110,7 +110,7 @@ Certificate Pinning
 
 
 Certificate pinning allows you to tie certificates against specified domains. It defends against attacks on certificate authorities.
-It has it's limitations as well. We require the base64 encoded hashed SubjectPublicKeyInfo. See the example below for google.com
+It has it's limitations as well. 
 
 Example:
 ```
@@ -130,3 +130,4 @@ Example:
         });
 
 ```
+
