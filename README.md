@@ -79,8 +79,10 @@ Sends an asynchronous request with "/foo" appended to base url
     builder.Uri ("http://localhost/api/v1/");
     APGateway gw = builder.Build ();
 
+    Dictionary<string,string> body = new Dictionary<string,string>();
+    body.Add("foo", "bar");
     // Send the request to http://localhost/api/v1/foo
-    gw.PostAsync (url: "/foo", callback: new APGW.StringCallback () {
+    gw.PostAsync (url: "/foo", body: body, callback: new APGW.StringCallback () {
         OnSuccess = (res) => {
             Console.WriteLine (res);
         },                 
