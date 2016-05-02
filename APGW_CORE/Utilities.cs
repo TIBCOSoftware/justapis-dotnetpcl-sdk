@@ -17,20 +17,29 @@ namespace APGW
             if (string.IsNullOrEmpty (newBaseOrUriToAppend)) {
                 return baseUrl;
             }
-            if (!newBaseOrUriToAppend.StartsWith("/")) {
-                newBaseOrUriToAppend = "/" + newBaseOrUriToAppend;
+
+            Uri uriFormatted = null;
+
+            try {
+                 uriFormatted = new Uri (newBaseOrUriToAppend, UriKind.Absolute);          
+            } catch(Exception e) {
+                 uriFormatted = new Uri (newBaseOrUriToAppend, UriKind.Relative); 
             }
-            Uri uriFormatted = new Uri (newBaseOrUriToAppend);
-            Uri baseUrlFormatted = new Uri (baseUrl);
-           
-            if (!string.IsNullOrEmpty (uriFormatted.Scheme) && (uriFormatted.Scheme.ToLower ().Equals ("http") || uriFormatted.Scheme.ToLower ().Equals ("https"))) {
+
+            if (uriFormatted.IsAbsoluteUri && (uriFormatted.Scheme.ToLower ().Equals ("http") || uriFormatted.Scheme.ToLower ().Equals ("https"))) {
                 return newBaseOrUriToAppend;
             } else {
+                Uri baseUrlFormatted = new Uri (baseUrl);
+
                 // Append url
                 if (!baseUrlFormatted.IsAbsoluteUri) {
                     throw new Exception ("base url should be absolute");
                 } else {
+                    if (!newBaseOrUriToAppend.StartsWith ("/")) {
+                        newBaseOrUriToAppend = "/" + newBaseOrUriToAppend;
+                    }
                     Uri combinedUrl = new Uri (baseUrl + newBaseOrUriToAppend);
+         
                     return combinedUrl.AbsoluteUri.ToString ();
                 }
 

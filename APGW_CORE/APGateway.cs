@@ -114,12 +114,12 @@ namespace APGW
 
         public async void Execute<T>(string url, Dictionary<string,string> body, HTTPMethod method, Callback<T> callback)
         {
-            Connect(Uri, body, method, callback);
+            Connect(url, body, method, callback);
         }
 
         public string ExecuteSync(string url, Dictionary<string,string> body, HTTPMethod method)
         {
-            return ConnectSync(Uri, body, method);
+            return ConnectSync(url, body, method);
         }           
 
         public async void Connect<T>(string uri, Dictionary<string,string> body, HTTPMethod method, Callback<T> callback)

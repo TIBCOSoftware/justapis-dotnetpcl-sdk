@@ -23,7 +23,7 @@ namespace TEST_APGW_CORE
         public void test_Handler() {
             APGatewayBuilder<APGateway> builder = new APGatewayBuilder<APGateway>();
             builder.Method(HTTPMethod.GET.ToString());
-			builder.Uri("http://localhost/api/user/cacheMe/");
+			builder.Uri("http://localhost/api/user/cacheMe");
             APGateway gw = builder.Build();
 
             var mockHttp = new MockHttpMessageHandler();
@@ -42,12 +42,12 @@ namespace TEST_APGW_CORE
             // Count listener
             Assert.AreEqual(1, cache.countListeners());
 
-			var body = gw.GetSync("/cacheMe");
+			var body = gw.GetSync("/cacheThis");
 
             Assert.AreEqual("{'name' : 'foobar'}", body);
             Assert.AreEqual(1, cache.Count());
 
-			Assert.AreEqual("{'name' : 'foobar'}", cache.GetFromCache(uri: "http://localhost/api/user/cacheMe/"));
+            Assert.AreEqual("{'name' : 'foobar'}", cache.GetFromCache(uri: "http://localhost/api/user/cacheMe/cacheThis"));
 
             // Should reduce the number of listeners
             Assert.AreEqual(0, cache.countListeners());
