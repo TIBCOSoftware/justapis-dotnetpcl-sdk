@@ -181,6 +181,58 @@ namespace APGW
             }
         }
 
+        /// <summary>
+        /// Subscribes to a channel.
+        /// </summary>
+        /// <param name="codeName">Code name.</param>
+        /// <param name="platform">Platform.</param>
+        /// <param name="channel">Channel.</param>
+        /// <param name="period">Period.</param>
+        /// <param name="token">Token.</param>
+        /// <param name="callback">Callback.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public async void Subscribe<T>(string codeName, string platform, string channel, string period, string token, Callback<T> callback) {
+            Dictionary<string,string> body = new Dictionary<string,string> ();
+            body.Add ("platform", platform);
+            body.Add ("channel", channel);
+            body.Add ("period", period);
+            body.Add ("token", token);
+            Execute(Utilities.UpdateUrl(Uri, codeName), body, HTTPMethod.POST, callback);
+        }
+
+        /// <summary>
+        /// Unsubscribes the device.
+        /// </summary>
+        /// <param name="codeName">Code name.</param>
+        /// <param name="name">Name.</param>
+        /// <param name="token">Token.</param>
+        /// <param name="callback">Callback.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public async void Unsubscribe<T>(string codeName, string name, string token, Callback<T> callback) {
+            Dictionary<string,string> body = new Dictionary<string,string> ();
+            body.Add ("name", name);
+            body.Add ("token", token);
+            Execute(Utilities.UpdateUrl(Uri, codeName), body, HTTPMethod.POST, callback);
+        }
+
+
+        /// <summary>
+        /// Publishes to a channel.
+        /// </summary>
+        /// <param name="codeName">Code name.</param>
+        /// <param name="channel">Channel.</param>
+        /// <param name="environment">Environment.</param>
+        /// <param name="payload">Payload.</param>
+        /// <param name="callback">Callback.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public async void Publish<T>(string codeName, string channel, string environment, Dictionary<string,object> payload, Callback<T> callback) {
+            Dictionary<string,string> body = new Dictionary<string,string> ();
+            body.Add ("channel", channel);
+            body.Add ("environment", environment);
+            body.Add ("payload", payload.ToString());
+            Execute(Utilities.UpdateUrl(Uri, codeName), body, HTTPMethod.POST, callback);
+        }
+
         private void BindListenerAfterReadingResponse(string body, string uri, CacheControlOptions cacheControlValue) {
             if (_useCaching) {
                 #if DEBUG
