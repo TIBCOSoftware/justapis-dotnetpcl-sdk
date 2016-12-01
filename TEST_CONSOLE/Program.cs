@@ -1,5 +1,4 @@
 ﻿using System;
-using APGW;
 using System.Collections.Generic;
 using Autofac;
 
@@ -8,19 +7,19 @@ namespace TEST_CONSOLE
     class MainClass
     {
 
-        public static void SetupDI() {
+       /* public static void SetupDI() {
             var builder = new ContainerBuilder();
             builder.RegisterType<Logger> ().As<ILogger> ();
             Config.RebuildContainer (builder.Build());  
-        }
+        }*/
 
         public static void Main (string[] args)
         {
-            SetupDI ();
+           // SetupDI ();
         }
     }
 
-    class Logger : APGW.ILogger
+    /*class Logger : APGW.ILogger
     {
         public Logger ()
         {
@@ -34,5 +33,5 @@ namespace TEST_CONSOLE
             Log (message + " : " + e.Message);
         }
 
-    }
+    }*/
 }

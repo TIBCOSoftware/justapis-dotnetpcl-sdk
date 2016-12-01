@@ -10,8 +10,7 @@ namespace Common
     public class HttpWebRequestResponse: IResponse
     {
         private WebResponse response;
-        private String requestUri;
-
+        
         public HttpWebRequestResponse() {}
                
         public HttpWebRequestResponse (WebResponse response)
