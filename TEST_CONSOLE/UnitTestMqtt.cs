@@ -7,6 +7,7 @@ using NUnit.Framework;
 using APGW_DOTNET;
 using Common;
 using System.Diagnostics;
+using System.Threading;
 
 namespace TEST_APGW_CORE
 {
@@ -38,12 +39,28 @@ namespace TEST_APGW_CORE
         {
             MQTT mqtt_client = new MQTT("mere-vase-5982.staging.nanoscaleapi.io", 1883);
             Assert.IsNotNull(mqtt_client);
-            mqtt_client.Connect("12345", "shassan@anypresence.com,PushMessagesAPI,push,mqtt", "password");
+            mqtt_client.Connect("123456", "shassan@anypresence.com,PushMessagesAPI,push,mqtt", "password");
             Assert.IsTrue(mqtt_client.isConnected());
-            mqtt_client.Subscribe(new string[] { "/dotnet_channel0" }, (value) =>
+            mqtt_client.Subscribe(new string[] { "/dotnet_channel4/topic1/" }, (args) =>
             {
-                Assert.IsNotNull(value);
-                Debug.WriteLine("Subscribed with Id" + value);
+                var props = args.GetType().GetProperties();
+                foreach (var prop in props)
+                {
+                    Assert.IsNotNull(prop);
+                    Debug.WriteLine(prop.Name + "=" + prop.GetValue(args, null));
+                }
+
+            }, (args) =>
+            {
+                var props = args.GetType().GetProperties();
+                foreach (var prop in props)
+                {
+                    if (prop.Name == "Message")
+                    {
+                        Debug.WriteLine(Encoding.UTF8.GetString((byte[])prop.GetValue(args, null)));
+                    }
+                }
+
             });
 
         }
@@ -52,11 +69,11 @@ namespace TEST_APGW_CORE
         public void unsubscribeChannel()
         {
             MQTT mqtt_client = new MQTT("mere-vase-5982.staging.nanoscaleapi.io", 1883);
-            mqtt_client.Connect(Guid.NewGuid().ToString(), "shassan@anypresence.com,PushMessagesAPI,push,mqtt", "password");
+            mqtt_client.Connect("123456", "shassan@anypresence.com,PushMessagesAPI,push,mqtt", "password");
             mqtt_client.unSubscribe(new string[] { "dotnet_channel" },(value)=>
             {
                 Assert.IsNotNull(value);
-                Debug.WriteLine("Subscribed with Id" + value);
+    
             });
         }
 
@@ -68,21 +85,33 @@ namespace TEST_APGW_CORE
             Assert.IsTrue(mqtt_client.isConnected());
             mqtt_client.Subscribe(new string[] { "/dotnet_channel4/topic1/" },(args)=>
             {
-                mqtt_client.Publish("dotnet_channel4/topic1/", "message", (publishedArgs) =>
+                var props = args.GetType().GetProperties();
+                foreach(var prop in props)
                 {
-
-                    //Assert.IsTrue(((publishedEventArgs)args).isPublished);
-                    Debug.WriteLine("published with Id " + publishedArgs.ToString());
-                });
-                Assert.IsNotNull(args);
-                Debug.WriteLine("Subscribed with Id" + args.ToString());
+                    Assert.IsNotNull(prop);
+                    Debug.WriteLine(prop.Name+"=" +prop.GetValue(args,null));
+                }
+                
             },(args)=>
             {
-                Assert.IsNotNull(args);
-                Debug.WriteLine("Message Recieved" + args.ToString());
+                var props = args.GetType().GetProperties();
+                foreach (var prop in props)
+                {
+                    if (prop.Name == "Message")
+                    {
+                        Debug.WriteLine(Encoding.UTF8.GetString((byte[])prop.GetValue(args, null)));
+                    }
+                }
+               
             });
             
-          
+            mqtt_client.Publish("dotnet_channel4/topic1/", "message", (publishedArgs) =>
+            {
+
+                //Assert.IsTrue(((publishedEventArgs)args).isPublished);
+                Debug.WriteLine("published with Id " + publishedArgs.ToString());
+            });
+
         }
        
     }

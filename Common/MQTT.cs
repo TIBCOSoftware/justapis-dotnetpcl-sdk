@@ -7,39 +7,10 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Net.Sockets;
 
 namespace Common
-{
-    public class subscribedEventArgs : MqttMsgSubscribedEventArgs
-    {
-        public subscribedEventArgs(ushort messageId, byte[] grantedQosLevels) : base(messageId, grantedQosLevels)
-        {
-        }
-    }
-
-    public class unSubscribedEventArgs : MqttMsgUnsubscribedEventArgs
-    {
-        public unSubscribedEventArgs(ushort messageId) : base(messageId)
-        {
-        }
-    }
-
-    public class publishEventArgs : MqttMsgPublishEventArgs
-    {
-        public publishEventArgs(string topic, byte[] message, bool dupFlag, byte qosLevel, bool retain) : base(topic, message, dupFlag, qosLevel, retain)
-        {
-        }
-    }
-
-    public class publishedEventArgs : MqttMsgPublishedEventArgs
-    {
-        public publishedEventArgs(ushort messageId,bool isPublished) : base(messageId, isPublished)
-        {
-
-        }
-    }
-
-    
+{   
     /// <summary>
     /// MQT.
     /// </summary>
@@ -62,15 +33,21 @@ namespace Common
 
             if (brokerHostName == null)
                 throw new ArgumentNullException("brokerHostName", "is required");
+            try
+            {
+                // MqttSslProtocols sslProtocol = MqttSslProtocols.None;
+                client = new MqttClient(brokerHostName);
+                //,brokerPort,secure,caCert,clientCert,sslProtocol);
+                client.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
+                client.MqttMsgPublished += client_MqttMsgPublished;
+                client.MqttMsgSubscribed += client_MqttMsgSubscrbed;
+                client.MqttMsgUnsubscribed += client_MqttMsgUnsubscribed;
 
-           // MqttSslProtocols sslProtocol = MqttSslProtocols.None;
-            client = new MqttClient(brokerHostName);
-            //,brokerPort,secure,caCert,clientCert,sslProtocol);
-            client.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
-            client.MqttMsgPublished += client_MqttMsgPublished;
-            client.MqttMsgSubscribed += client_MqttMsgSubscrbed;
-            client.MqttMsgUnsubscribed += client_MqttMsgUnsubscribed;
-           
+            }catch(SocketException e){
+                Console.WriteLine("unable to create client due to socket exception " + e.Message.ToString());
+            }
+
+
 
         }
 
@@ -112,8 +89,8 @@ namespace Common
         {
             if (clientEvents.ContainsKey("subscribed"))
             {
-                EventArgs args=e;
-                clientEvents["subscribed"](args);
+
+                clientEvents["subscribed"](e);
             }
             Debug.WriteLine("Subscribed for Id" + e.MessageId);
         }
@@ -131,8 +108,8 @@ namespace Common
         {
             if (clientEvents.ContainsKey("unsubscribed"))
             {
-                EventArgs args =e;
-                clientEvents["unsubscribed"](args);
+                
+                clientEvents["unsubscribed"](e);
             }
             Debug.WriteLine(e.MessageId.ToString());
         }
@@ -152,10 +129,10 @@ namespace Common
         {
             if (clientEvents.ContainsKey("publishRecieved"))
             {
-                EventArgs args =e;
-                clientEvents["publishRecieved"](args);
+                
+                clientEvents["publishRecieved"](e);
             }
-            Debug.WriteLine(e.Message.ToString());
+            Debug.WriteLine(Encoding.UTF8.GetString(e.Message));
         }
 
         private void client_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
