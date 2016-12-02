@@ -96,7 +96,7 @@ namespace APGW
         /// Posts the sync.
         /// </summary>
         /// <param name="url">URL.</param>
-        public string PostSync(string url="", Dictionary<string,string> body=null)
+        public string PostSync(string url="", Dictionary<string,object> body=null)
         {
             return ExecuteSync(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST);
         }
@@ -107,22 +107,22 @@ namespace APGW
         /// <param name="url">URL.</param>
         /// <param name="callback">Callback.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
-        public void PostASync<T>(Callback<T> callback, string url="", Dictionary<string,string> body=null)
+        public void PostASync<T>(Callback<T> callback, string url="", Dictionary<string,object> body=null)
         {
             Execute(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST, callback);
         }
 
-        public async void Execute<T>(string url, Dictionary<string,string> body, HTTPMethod method, Callback<T> callback)
+        public async void Execute<T>(string url, Dictionary<string,object> body, HTTPMethod method, Callback<T> callback)
         {
             Connect(url, body, method, callback);
         }
 
-        public string ExecuteSync(string url, Dictionary<string,string> body, HTTPMethod method)
+        public string ExecuteSync(string url, Dictionary<string,object> body, HTTPMethod method)
         {
             return ConnectSync(url, body, method);
         }           
 
-        public async void Connect<T>(string uri, Dictionary<string,string> body, HTTPMethod method, Callback<T> callback)
+        public async void Connect<T>(string uri, Dictionary<string,object> body, HTTPMethod method, Callback<T> callback)
         {
             var request = callback.CreateRequestContext ();
             request.Method = method;
@@ -144,7 +144,7 @@ namespace APGW
             callback.OnSuccess (request.ParseResponse (responseBody).Result);
         }
 
-        public string ConnectSync(string uri, Dictionary<string,string> body, HTTPMethod method)
+        public string ConnectSync(string uri, Dictionary<string,object> body, HTTPMethod method)
         {
             StringRequestContext request = new StringRequestContext(method, uri);           
             request.Gateway = this;
@@ -191,13 +191,14 @@ namespace APGW
         /// <param name="token">Token.</param>
         /// <param name="callback">Callback.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
-        public async void Subscribe<T>(string codeName, string platform, string channel, string period, string token, Callback<T> callback) {
-            Dictionary<string,string> body = new Dictionary<string,string> ();
+        public async void Subscribe<T>(string url, string platform, string channel, Int64 period, string token,string name, Callback<T> callback) {
+            Dictionary<string,object> body = new Dictionary<string,object> ();
             body.Add ("platform", platform);
             body.Add ("channel", channel);
             body.Add ("period", period);
             body.Add ("token", token);
-            Execute(Utilities.UpdateUrl(Uri, codeName), body, HTTPMethod.POST, callback);
+            body.Add("name",name);
+            Execute(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST, callback);
         }
 
         /// <summary>
@@ -208,11 +209,13 @@ namespace APGW
         /// <param name="token">Token.</param>
         /// <param name="callback">Callback.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
-        public async void Unsubscribe<T>(string codeName, string name, string token, Callback<T> callback) {
-            Dictionary<string,string> body = new Dictionary<string,string> ();
-            body.Add ("name", name);
+        public async void Unsubscribe<T>(string url, string platform,string environment, string channel, string token, Callback<T> callback) {
+            Dictionary<string,object> body = new Dictionary<string,object> ();
+            body.Add("platform", platform);
+            body.Add("environment", environment);
+            body.Add ("channel", channel);
             body.Add ("token", token);
-            Execute(Utilities.UpdateUrl(Uri, codeName), body, HTTPMethod.POST, callback);
+            Execute(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST, callback);
         }
 
 
@@ -225,12 +228,12 @@ namespace APGW
         /// <param name="payload">Payload.</param>
         /// <param name="callback">Callback.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
-        public async void Publish<T>(string codeName, string channel, string environment, Dictionary<string,object> payload, Callback<T> callback) {
-            Dictionary<string,string> body = new Dictionary<string,string> ();
+        public async void Publish<T>(string url, string channel, string environment, object payload, Callback<T> callback) {
+            Dictionary<string,object> body = new Dictionary<string,object> ();
             body.Add ("channel", channel);
             body.Add ("environment", environment);
-            body.Add ("payload", payload.ToString());
-            Execute(Utilities.UpdateUrl(Uri, codeName), body, HTTPMethod.POST, callback);
+            body.Add ("payload", payload);
+            Execute(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST, callback);
         }
 
         private void BindListenerAfterReadingResponse(string body, string uri, CacheControlOptions cacheControlValue) {

@@ -5,7 +5,7 @@ namespace APGW
 {
     public interface IRequestEncoding
     {
-        string Encode(Dictionary<string,string> data);
+        string Encode(Dictionary<string,object> data);
 
         string Encoding();
     }

@@ -10,7 +10,7 @@ namespace APGW
         {
         }
 
-        public string Encode(Dictionary<string,string> body) {
+        public string Encode(Dictionary<string,object> body) {
             if (body != null) {
                 return JsonConvert.SerializeObject (body).ToString ();      
             } else {
