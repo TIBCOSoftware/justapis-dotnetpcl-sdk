@@ -43,24 +43,9 @@ namespace TEST_APGW_CORE
             Assert.IsTrue(mqtt_client.isConnected());
             mqtt_client.Subscribe(new string[] { "/dotnet_channel4/topic1/" }, (args) =>
             {
-                var props = args.GetType().GetProperties();
-                foreach (var prop in props)
-                {
-                    Assert.IsNotNull(prop);
-                    Debug.WriteLine(prop.Name + "=" + prop.GetValue(args, null));
-                }
-
-            }, (args) =>
-            {
-                var props = args.GetType().GetProperties();
-                foreach (var prop in props)
-                {
-                    if (prop.Name == "Message")
-                    {
-                        Debug.WriteLine(Encoding.UTF8.GetString((byte[])prop.GetValue(args, null)));
-                    }
-                }
-
+                var lArgs =(subscribedEventArgs)args;
+                Assert.IsNotNull(lArgs);
+                Assert.Positive(lArgs.messageId);
             });
 
         }
@@ -85,31 +70,20 @@ namespace TEST_APGW_CORE
             Assert.IsTrue(mqtt_client.isConnected());
             mqtt_client.Subscribe(new string[] { "/dotnet_channel4/topic1/" },(args)=>
             {
-                var props = args.GetType().GetProperties();
-                foreach(var prop in props)
-                {
-                    Assert.IsNotNull(prop);
-                    Debug.WriteLine(prop.Name+"=" +prop.GetValue(args,null));
-                }
-                
+                var lArgs = (subscribedEventArgs)args;
+                Assert.IsNotNull(lArgs);
+                Assert.Positive(lArgs.messageId);
+
             },(args)=>
             {
-                var props = args.GetType().GetProperties();
-                foreach (var prop in props)
-                {
-                    if (prop.Name == "Message")
-                    {
-                        Debug.WriteLine(Encoding.UTF8.GetString((byte[])prop.GetValue(args, null)));
-                    }
-                }
-               
+                var lArgs = (publishEventArgs)args;
+                Assert.Equals(Encoding.UTF8.GetString(lArgs.message),"message");
+
             });
             
-            mqtt_client.Publish("dotnet_channel4/topic1/", "message", (publishedArgs) =>
+            mqtt_client.Publish("dotnet_channel4/topic1/", "message", (args) =>
             {
-
-                //Assert.IsTrue(((publishedEventArgs)args).isPublished);
-                Debug.WriteLine("published with Id " + publishedArgs.ToString());
+                Assert.IsTrue(((publishedEventArgs)args).isPublished);
             });
 
         }

@@ -11,6 +11,82 @@ using System.Net.Sockets;
 
 namespace Common
 {   
+
+    public class subscribeEventArgs :EventArgs
+    {
+        private MqttMsgSubscribeEventArgs args;
+
+        public ushort messageId { get { return args.MessageId; } }
+        public byte[] qosLevel { get { return args.QoSLevels; } }
+        public string[] topics { get { return args.Topics; } }
+        public subscribeEventArgs(MqttMsgSubscribeEventArgs args)
+        {
+            this.args = args;
+        }
+    }
+
+    public class subscribedEventArgs : EventArgs
+    {
+        private MqttMsgSubscribedEventArgs args;
+
+        public ushort messageId { get { return args.MessageId; } }
+        public byte[] grantedQosLevels { get { return args.GrantedQoSLevels; } }
+        public subscribedEventArgs(MqttMsgSubscribedEventArgs args)
+        {
+            this.args = args;
+        }
+    }
+
+
+    public class unsubscribEventArgs : EventArgs
+    {
+        private MqttMsgUnsubscribeEventArgs args;
+        public ushort messageId { get{ return args.MessageId;}}
+        public string[] topics{ get{return args.Topics;}}
+
+        public unsubscribEventArgs(MqttMsgUnsubscribeEventArgs args) 
+        {
+            this.args = args;
+        }
+    }
+
+    public class unsubscribedEventArgs : EventArgs
+    {
+        private MqttMsgUnsubscribedEventArgs args;
+        public ushort messageId{ get{ return args.MessageId;}}
+
+        public unsubscribedEventArgs(MqttMsgUnsubscribedEventArgs args) 
+        {
+            this.args = args;
+        }
+    }
+
+    public class publishEventArgs : EventArgs
+    {
+        private MqttMsgPublishEventArgs args;
+        public byte[] message{ get{return args.Message;}}
+        public byte qosLevel{ get{return args.QosLevel;}}
+        public bool retain{ get{return args.Retain;}}
+        public string topic{ get{return args.Topic;}}
+
+        public publishEventArgs(MqttMsgPublishEventArgs args)
+        {
+            this.args = args;
+        }
+    }
+
+    public class publishedEventArgs : EventArgs
+    {
+        private MqttMsgPublishedEventArgs args;
+        public ushort messageId{ get{ return args.MessageId;}}
+        public bool isPublished { get { return args.IsPublished;}}
+
+        public publishedEventArgs(MqttMsgPublishedEventArgs args)
+        {
+            this.args = args;
+        }
+    }
+
     /// <summary>
     /// MQT.
     /// </summary>
@@ -18,7 +94,15 @@ namespace Common
     {
         private Dictionary<string,Action<EventArgs>> clientEvents = new Dictionary<string,Action<EventArgs>>();
         private MqttClient client;
-        //public enum SslProtocols=MqttSslProtocols;
+       
+        public enum SslProtocols
+        {
+            None,
+            SSLv3,
+            TLSv1_0,
+            TLSv1_1,
+            TLSv1_2
+        }
         public bool isConnected()
         {
             if(this.client.Equals(null)){
@@ -28,40 +112,39 @@ namespace Common
             }
         }
         
-        public MQTT(string brokerHostName,int brokerPort, bool secure=false,X509Certificate caCert=null,X509Certificate clientCert=null)
+        public MQTT(string brokerHostName,int brokerPort=1883, bool secure=false,X509Certificate caCert=null,X509Certificate clientCert=null,SslProtocols protocol=SslProtocols.None)
         {
 
             if (brokerHostName == null)
-                throw new ArgumentNullException("brokerHostName", "is required");
+                throw new ArgumentNullException(nameof(brokerHostName), " is required");
             try
             {
-                // MqttSslProtocols sslProtocol = MqttSslProtocols.None;
-                client = new MqttClient(brokerHostName);
-                //,brokerPort,secure,caCert,clientCert,sslProtocol);
+                MqttSslProtocols sslProtocol = (MqttSslProtocols)((int)protocol);
+                client = new MqttClient(brokerHostName,brokerPort,secure,caCert,clientCert,sslProtocol);
                 client.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
                 client.MqttMsgPublished += client_MqttMsgPublished;
                 client.MqttMsgSubscribed += client_MqttMsgSubscrbed;
                 client.MqttMsgUnsubscribed += client_MqttMsgUnsubscribed;
 
             }catch(SocketException e){
-                Console.WriteLine("unable to create client due to socket exception " + e.Message.ToString());
+                throw e;
             }
 
 
 
         }
 
-        public void Connect(string clientId = null, string username = null, string password = null, bool willRetain = false, byte willQosLevel = MqttMsgConnect.QOS_LEVEL_AT_MOST_ONCE, bool willFlag = false, string willTopic = null, string willMessage = null, bool cleanSession = true, ushort keepAlivePeriod = 60)
+        public void Connect(string clientId, string username = null, string password = null, bool willRetain = false, byte willQosLevel = MqttMsgConnect.QOS_LEVEL_AT_MOST_ONCE, bool willFlag = false, string willTopic = null, string willMessage = null, bool cleanSession = true, ushort keepAlivePeriod = 60)
         {
             try
             {
                 if (clientId == null)
                 {
-                    clientId = "dotnetClient";
+                    throw new ArgumentNullException(nameof(clientId), " is required");
                 }
                 this.client.Connect(clientId, username, password, willRetain, willQosLevel, willFlag, willTopic, willMessage, cleanSession, keepAlivePeriod);
             }catch(Exception e){
-                Console.WriteLine(e.Message.ToString());
+                throw e;
             }
             
         }
@@ -89,10 +172,9 @@ namespace Common
         {
             if (clientEvents.ContainsKey("subscribed"))
             {
-
-                clientEvents["subscribed"](e);
+                subscribedEventArgs lArgs = new subscribedEventArgs(e);
+                clientEvents["subscribed"](lArgs);
             }
-            Debug.WriteLine("Subscribed for Id" + e.MessageId);
         }
 
         public void unSubscribe(string[] topics,Action<EventArgs> onUnSubscribe=null)
@@ -108,10 +190,9 @@ namespace Common
         {
             if (clientEvents.ContainsKey("unsubscribed"))
             {
-                
-                clientEvents["unsubscribed"](e);
+                unsubscribedEventArgs lArgs = new unsubscribedEventArgs(e);
+                clientEvents["unsubscribed"](lArgs);
             }
-            Debug.WriteLine(e.MessageId.ToString());
         }
 
 
@@ -129,20 +210,18 @@ namespace Common
         {
             if (clientEvents.ContainsKey("publishRecieved"))
             {
-                
-                clientEvents["publishRecieved"](e);
+                publishEventArgs lArgs = new publishEventArgs(e);
+                clientEvents["publishRecieved"](lArgs);
             }
-            Debug.WriteLine(Encoding.UTF8.GetString(e.Message));
         }
 
         private void client_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
         {
             if (clientEvents.ContainsKey("published"))
             {
-                //publishedEventArgs args =(publishedEventArgs)e;
-                clientEvents["published"](e);
+                publishedEventArgs lArgs =new publishedEventArgs(e);
+                clientEvents["published"](lArgs);
             }
-            Debug.WriteLine(e.MessageId.ToString());
         }
 
         
