@@ -37,7 +37,6 @@ namespace Common
         }
     }
 
-
     public class unsubscribEventArgs : EventArgs
     {
         private MqttMsgUnsubscribeEventArgs args;
@@ -88,13 +87,17 @@ namespace Common
     }
 
     /// <summary>
-    /// MQT.
+    /// MQTT class.
     /// </summary>
     public class MQTT
     {
-        private Dictionary<string,Action<EventArgs>> clientEvents = new Dictionary<string,Action<EventArgs>>();
         private MqttClient client;
-       
+        private Dictionary<string, Action<EventArgs>> clientEvents = new Dictionary<string, Action<EventArgs>>();
+
+        public const byte QOS_LEVEL_AT_MOST_ONCE = 0 * 00;
+        public const byte QOS_LEVEL_AT_LEAST_ONCE = 0 * 01;
+        public const byte QOS_LEVEL_EXACTLY_ONCE = 0 * 02;
+
         public enum SslProtocols
         {
             None,
@@ -103,6 +106,11 @@ namespace Common
             TLSv1_1,
             TLSv1_2
         }
+
+        /// <summary>
+        /// This property provides the connection status of the client
+        /// </summary>
+        /// <returns>true if client connected false otherwise</returns>
         public bool isConnected()
         {
             if(this.client.Equals(null)){
@@ -112,6 +120,15 @@ namespace Common
             }
         }
         
+        /// <summary>
+        /// This function creates the MQTT client object
+        /// </summary>
+        /// <param name="brokerHostName"></param>
+        /// <param name="brokerPort">SSL port is mostly 8883</param>
+        /// <param name="secure">true for ssl</param>
+        /// <param name="caCert"></param>
+        /// <param name="clientCert"></param>
+        /// <param name="protocol">use enum sslProtocols to provide the type of ssl protocol to use</param>
         public MQTT(string brokerHostName,int brokerPort=1883, bool secure=false,X509Certificate caCert=null,X509Certificate clientCert=null,SslProtocols protocol=SslProtocols.None)
         {
 
@@ -123,17 +140,27 @@ namespace Common
                 client = new MqttClient(brokerHostName,brokerPort,secure,caCert,clientCert,sslProtocol);
                 client.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
                 client.MqttMsgPublished += client_MqttMsgPublished;
-                client.MqttMsgSubscribed += client_MqttMsgSubscrbed;
+                client.MqttMsgSubscribed += client_MqttMsgSubscribed;
                 client.MqttMsgUnsubscribed += client_MqttMsgUnsubscribed;
 
             }catch(SocketException e){
                 throw e;
             }
-
-
-
         }
 
+        /// <summary>
+        /// This function conencts with the client using the provided client Id
+        /// </summary>
+        /// <param name="clientId"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="willRetain"></param>
+        /// <param name="willQosLevel"></param>
+        /// <param name="willFlag"></param>
+        /// <param name="willTopic"></param>
+        /// <param name="willMessage"></param>
+        /// <param name="cleanSession"></param>
+        /// <param name="keepAlivePeriod"></param>
         public void Connect(string clientId, string username = null, string password = null, bool willRetain = false, byte willQosLevel = MqttMsgConnect.QOS_LEVEL_AT_MOST_ONCE, bool willFlag = false, string willTopic = null, string willMessage = null, bool cleanSession = true, ushort keepAlivePeriod = 60)
         {
             try
@@ -149,26 +176,45 @@ namespace Common
             
         }
 
+        /// <summary>
+        /// This function disconnects the current client from broker.
+        /// </summary>
         public void Disconnect()
         {
             client.Disconnect();
         }
 
-        public void Subscribe(string[] topic,Action<EventArgs> onsubscribe=null,Action<EventArgs> onMessageRecieved=null)
+        /// <summary>
+        /// This funciton subscribes with the already connected broker with an array of topics
+        /// </summary>
+        /// <param name="topic">Array of topics. Each topic can have a maximum length of 65535 and minimum lenght of 1 characters</param>
+        /// <param name="qosLevels">Array of bytes for each topic.</param>
+        /// <param name="onsubscribe">callback function on successful subscription</param>
+        /// <param name="onMessageRecieved">callback function called when a message is recieved</param>
+        public void Subscribe(string[] topic,byte[] qosLevels,Action<EventArgs> onsubscribe=null,Action<EventArgs> onMessageRecieved=null)
         {
+            //if event callback available for subscribe call it when subscibe
+            //is successful
             if (onsubscribe != null)
             {
                 clientEvents["subscribed"]= onsubscribe;
             }
+            //if event callback available for recieve message call it when
+            //a message is recieved on the subscribed channel
             if ( onMessageRecieved != null)
             {
                 clientEvents["publishRecieved"] = onMessageRecieved;
             }
-            client.Subscribe(topic, new byte[] { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE });
+            client.Subscribe(topic, qosLevels);
 
         }
 
-        private void client_MqttMsgSubscrbed(object sender, MqttMsgSubscribedEventArgs e)
+        /// <summary>
+        /// private function delegate called when the client subscription is successful
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void client_MqttMsgSubscribed(object sender, MqttMsgSubscribedEventArgs e)
         {
             if (clientEvents.ContainsKey("subscribed"))
             {
@@ -177,6 +223,11 @@ namespace Common
             }
         }
 
+        /// <summary>
+        /// this functions unsubscribes the client with the provided topics
+        /// </summary>
+        /// <param name="topics">array of string topics to subscribe from</param>
+        /// <param name="onUnSubscribe">callback method</param>
         public void unSubscribe(string[] topics,Action<EventArgs> onUnSubscribe=null)
         {
             if (onUnSubscribe !=null)
@@ -186,6 +237,11 @@ namespace Common
             client.Unsubscribe(topics);
         }
 
+        /// <summary>
+        /// private function delegate called when the client unsubscribes successfully
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void client_MqttMsgUnsubscribed(object sender,MqttMsgUnsubscribedEventArgs e)
         {
             if (clientEvents.ContainsKey("unsubscribed"))
@@ -195,17 +251,26 @@ namespace Common
             }
         }
 
-
-        public void Publish(string topic, string message,Action<EventArgs> onPublished=null)
+        /// <summary>
+        /// this function publishes a message on the topic 
+        /// </summary>
+        /// <param name="topic">string topic to publish to</param>
+        /// <param name="message">string message to publish</param>
+        /// <param name="onPublished">delegate success callback on publish</param>
+        public void Publish(string topic, byte[] message, byte qosLevel=QOS_LEVEL_AT_LEAST_ONCE, bool retain=false, Action<EventArgs> onPublished=null)
         {
             if (onPublished != null)
             {
-                
                 clientEvents["published"]= onPublished;
             }
-            client.Publish(topic, Encoding.UTF8.GetBytes(message), MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE,false);
+            client.Publish(topic, message, qosLevel,retain);
         }
 
+        /// <summary>
+        /// this event method is called when a message is recieved successfully
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
             if (clientEvents.ContainsKey("publishRecieved"))
@@ -215,6 +280,11 @@ namespace Common
             }
         }
 
+        /// <summary>
+        /// this event method is called when a message is published successfully
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void client_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
         {
             if (clientEvents.ContainsKey("published"))
