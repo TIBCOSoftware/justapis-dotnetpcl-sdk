@@ -1,6 +1,5 @@
 ﻿using System;
 using Autofac;
-using Autofac.Builder;
 
 namespace APGW
 {

@@ -1,11 +1,7 @@
 ﻿using System;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
-using APGW;
-using System.Net;
-using System.Text;
 using System.Security.Cryptography.X509Certificates;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Net.Sockets;
 

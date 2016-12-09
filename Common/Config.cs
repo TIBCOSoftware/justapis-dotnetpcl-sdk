@@ -1,5 +1,4 @@
 ﻿using System;
-using Autofac;
 
 namespace Common
 {
@@ -7,9 +6,9 @@ namespace Common
     {
 
         public static void Setup() {
-            var builder = new ContainerBuilder();
+            /*var builder = new ContainerBuilder();
             builder.RegisterType<Logger> ().As<APGW.ILogger> ();
-            APGW.Config.RebuildContainer (builder.Build());  
+            APGW.Config.RebuildContainer (builder.Build());  */
         }
 
         class Logger : APGW.ILogger

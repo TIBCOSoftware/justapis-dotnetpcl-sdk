@@ -33,7 +33,7 @@ namespace Common
         }
 
         private void PinCerts(HttpWebRequest client) {
-            LogHelper.Log ("CORE: Pinning certs...");
+            //LogHelper.Log ("CORE: Pinning certs...");
 
             client.ClientCertificates.Clear ();
 
@@ -98,7 +98,7 @@ namespace Common
         }
 
         public async Task<IResponse> ExecuteRequest<T>(RequestContext<T> request) {
-            LogHelper.Log ("Executing request with HttpWebRequest: " + request.Url);
+            //LogHelper.Log ("Executing request with HttpWebRequest: " + request.Url);
 
             var client = Pin (CreateClient (request.Url), request);
 
