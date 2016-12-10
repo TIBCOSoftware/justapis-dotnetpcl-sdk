@@ -5,11 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Common;
+using NUnitLite.Runner;
 using System.Diagnostics;
 using System.Threading;
-using System.Security.Cryptography.X509Certificates;
+//using System.Security.Cryptography.X509Certificates;
 
-namespace TEST_APGW_CORE
+namespace TEST_APGW_IOS_UNIT
 {
     [TestFixture]
     class UnitTestMqtt
@@ -45,7 +46,7 @@ namespace TEST_APGW_CORE
             {
                 var lArgs =(subscribedEventArgs)args;
                 Assert.IsNotNull(lArgs);
-                Assert.Positive(lArgs.messageId);
+                Assert.AreEqual(lArgs.grantedQosLevels[0],MQTT.QOS_LEVEL_EXACTLY_ONCE);
             });
 
         }
@@ -71,7 +72,7 @@ namespace TEST_APGW_CORE
             {
                 var lArgs = (subscribedEventArgs)args;
                 Assert.IsNotNull(lArgs);
-                Assert.Positive(lArgs.messageId);
+                Assert.AreEqual(lArgs.grantedQosLevels[0], MQTT.QOS_LEVEL_EXACTLY_ONCE);
 
             },(args)=>
             {
@@ -80,7 +81,7 @@ namespace TEST_APGW_CORE
 
             });
             
-            mqtt_client.Publish("dotnet_channel4/topic1/", Encoding.UTF8.GetBytes("xamarin ios message"),MQTT.QOS_LEVEL_AT_LEAST_ONCE,true, (args) =>
+            mqtt_client.Publish("dotnet_channel4/topic1/", Encoding.UTF8.GetBytes("message"),MQTT.QOS_LEVEL_AT_LEAST_ONCE,true, (args) =>
             {
                 Assert.IsTrue(((publishedEventArgs)args).isPublished);
             });
@@ -91,7 +92,7 @@ namespace TEST_APGW_CORE
         public void publishSecureMessage()
         {
             
-            /*X509Certificate2 ca_cert =new X509Certificate2(@"C:\Users\shahzad\Documents\justapi-dontnet\TEST_CONSOLE\RootCaClientTest.cer");
+           /* X509Certificate2 ca_cert =new X509Certificate2(@"C:\Users\shahzad\Documents\justapi-dontnet\TEST_CONSOLE\RootCaClientTest.cer");
 
             X509Certificate2 cert = new X509Certificate2(@"C:\Users\shahzad\Documents\justapi-dontnet\TEST_CONSOLE\TestCert.cer");
 
@@ -102,7 +103,7 @@ namespace TEST_APGW_CORE
             {
                 var lArgs = (subscribedEventArgs)args;
                 Assert.IsNotNull(lArgs);
-                Assert.Positive(lArgs.messageId);
+                Assert.AreEqual(lArgs.grantedQosLevels, MQTT.QOS_LEVEL_EXACTLY_ONCE);
 
             }, (args) =>
             {
