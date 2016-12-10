@@ -90,9 +90,9 @@ namespace Common
         private MqttClient client;
         private Dictionary<string, Action<EventArgs>> clientEvents = new Dictionary<string, Action<EventArgs>>();
 
-        public const byte QOS_LEVEL_AT_MOST_ONCE = 0 * 00;
-        public const byte QOS_LEVEL_AT_LEAST_ONCE = 0 * 01;
-        public const byte QOS_LEVEL_EXACTLY_ONCE = 0 * 02;
+        public const byte QOS_LEVEL_AT_MOST_ONCE = 0;
+        public const byte QOS_LEVEL_AT_LEAST_ONCE = 1;
+        public const byte QOS_LEVEL_EXACTLY_ONCE = 2;
 
         public enum SslProtocols
         {

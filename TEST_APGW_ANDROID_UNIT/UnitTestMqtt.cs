@@ -46,7 +46,7 @@ namespace TEST_APGW_ANDROID_UNIT
             {
                 var lArgs =(subscribedEventArgs)args;
                 Assert.IsNotNull(lArgs);
-                Assert.AreEqual(lArgs.grantedQosLevels,MQTT.QOS_LEVEL_EXACTLY_ONCE);
+                Assert.AreEqual(lArgs.grantedQosLevels[0],MQTT.QOS_LEVEL_EXACTLY_ONCE);
             });
 
         }
@@ -72,7 +72,7 @@ namespace TEST_APGW_ANDROID_UNIT
             {
                 var lArgs = (subscribedEventArgs)args;
                 Assert.IsNotNull(lArgs);
-                Assert.AreEqual(lArgs.grantedQosLevels, MQTT.QOS_LEVEL_EXACTLY_ONCE);
+                Assert.AreEqual(lArgs.grantedQosLevels[0], MQTT.QOS_LEVEL_EXACTLY_ONCE);
 
             },(args)=>
             {
