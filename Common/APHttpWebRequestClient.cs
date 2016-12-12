@@ -44,7 +44,7 @@ namespace Common
             }
         }
 
-        private async Task<WebResponse> Post(HttpWebRequest client, string url, Dictionary<string,string> body) {
+        private async Task<WebResponse> Post(HttpWebRequest client, string url, Dictionary<string,object> body) {
             client.Method = "POST";
 
             client = WriteDataToRequestStream (body, client);
@@ -53,7 +53,7 @@ namespace Common
             return response;
         }
 
-        private async Task<WebResponse> Put(HttpWebRequest client, string url, Dictionary<string,string> body) {
+        private async Task<WebResponse> Put(HttpWebRequest client, string url, Dictionary<string,object> body) {
             client.Method = "PUT";
 
             client = WriteDataToRequestStream (body, client);
@@ -76,7 +76,7 @@ namespace Common
             return response;
         }
 
-        private HttpWebRequest WriteDataToRequestStream(Dictionary<string,string> body, HttpWebRequest client) {
+        private HttpWebRequest WriteDataToRequestStream(Dictionary<string,object> body, HttpWebRequest client) {
             var encoder = new APGW.JsonRequestEncoding ();
             byte[] byteArray = Encoding.UTF8.GetBytes (encoder.Encode(body));
 

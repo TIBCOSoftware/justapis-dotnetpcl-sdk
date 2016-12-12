@@ -20,7 +20,7 @@ namespace TEST_APGW_CORE
 
         [Test]
         public void Test_JsonEncoder() {
-            Dictionary<string,string> body = new Dictionary<string,string> ();
+            Dictionary<string,object> body = new Dictionary<string,object> ();
             body.Add ("foo", "bar");
 
             IRequestEncoding encoder = new JsonRequestEncoding ();

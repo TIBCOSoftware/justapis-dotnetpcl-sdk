@@ -12,7 +12,7 @@ namespace APGW
         public string Url { get; set; }
         public Dictionary<string, string> Headers { get; set; }
         public bool ShouldPinCert { get; set; }
-        public Dictionary<string, string> PostParam { get; set; }
+        public Dictionary<string, object> PostParam { get; set; }
         public APGateway Gateway { get; set; }
         public HTTPMethod Method { get; set; }
 

@@ -1,21 +1,5 @@
-﻿using System;
-using System.Net;
-using System.IO;
-using System.Text;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Runtime.InteropServices;
-using System.Net;
-using System.Collections;
-using System.Security.Cryptography.X509Certificates;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System.Net;
 using System.Net.Security;
-using System.Linq;
-using System.Net.Http;
-using System.Net;
-using APGW;
-using System.Threading.Tasks;
 using Common;
 
 namespace APGW_IOS

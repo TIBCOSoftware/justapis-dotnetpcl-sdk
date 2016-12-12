@@ -85,7 +85,7 @@ namespace APGW
             return response;
         }
 
-        private string SerializeBodyToJson(Dictionary<string,string> body) {
+        private string SerializeBodyToJson(Dictionary<string,object> body) {
             if (body != null) {
                 return JsonConvert.SerializeObject (body).ToString ();      
             } else {

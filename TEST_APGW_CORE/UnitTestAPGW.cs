@@ -154,7 +154,7 @@ namespace TEST_APGW_CORE
             APGateway gateway = builder.Build ();
             gateway.RestClient = new APRestClient (mockHttp);
 
-            Dictionary<string,string> body = new Dictionary<string,string> ();
+            Dictionary<string,object> body = new Dictionary<string,object> ();
             body.Add ("foo", "bar");
             var str = gateway.PostSync("foo", body);       
 

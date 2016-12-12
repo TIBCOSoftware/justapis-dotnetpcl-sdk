@@ -1,13 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Net.Http;
-using Autofac;
-using Autofac.Builder;
-using System.Net.Http.Headers;
 
 namespace APGW
 {
@@ -96,7 +89,7 @@ namespace APGW
         /// Posts the sync.
         /// </summary>
         /// <param name="url">URL.</param>
-        public string PostSync(string url="", Dictionary<string,string> body=null)
+        public string PostSync(string url="", Dictionary<string,object> body=null)
         {
             return ExecuteSync(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST);
         }
@@ -107,22 +100,22 @@ namespace APGW
         /// <param name="url">URL.</param>
         /// <param name="callback">Callback.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
-        public void PostASync<T>(Callback<T> callback, string url="", Dictionary<string,string> body=null)
+        public void PostASync<T>(Callback<T> callback, string url="", Dictionary<string,object> body=null)
         {
             Execute(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST, callback);
         }
 
-        public async void Execute<T>(string url, Dictionary<string,string> body, HTTPMethod method, Callback<T> callback)
+        public async void Execute<T>(string url, Dictionary<string,object> body, HTTPMethod method, Callback<T> callback)
         {
             Connect(url, body, method, callback);
         }
 
-        public string ExecuteSync(string url, Dictionary<string,string> body, HTTPMethod method)
+        public string ExecuteSync(string url, Dictionary<string,object> body, HTTPMethod method)
         {
             return ConnectSync(url, body, method);
         }           
 
-        public async void Connect<T>(string uri, Dictionary<string,string> body, HTTPMethod method, Callback<T> callback)
+        public async void Connect<T>(string uri, Dictionary<string,object> body, HTTPMethod method, Callback<T> callback)
         {
             var request = callback.CreateRequestContext ();
             request.Method = method;
@@ -144,7 +137,7 @@ namespace APGW
             callback.OnSuccess (request.ParseResponse (responseBody).Result);
         }
 
-        public string ConnectSync(string uri, Dictionary<string,string> body, HTTPMethod method)
+        public string ConnectSync(string uri, Dictionary<string,object> body, HTTPMethod method)
         {
             StringRequestContext request = new StringRequestContext(method, uri);           
             request.Gateway = this;
@@ -179,6 +172,62 @@ namespace APGW
                 return task.Result;
 
             }
+        }
+
+        /// <summary>
+        /// Subscribes to a channel.
+        /// </summary>
+        
+        /// <param name="platform">Platform.</param>
+        /// <param name="channel">Channel.</param>
+        /// <param name="period">Period.</param>
+        /// <param name="token">Token.</param>
+		/// <param name="name">name object</param>
+        /// <param name="callback">Callback.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public async void Subscribe<T>(string url, string platform, string channel, Int64 period, string token,string name, Callback<T> callback) {
+            Dictionary<string,object> body = new Dictionary<string,object> ();
+            body.Add ("platform", platform);
+            body.Add ("channel", channel);
+            body.Add ("period", period);
+            body.Add ("token", token);
+            body.Add("name",name);
+            Execute(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST, callback);
+        }
+
+        /// <summary>
+        /// Unsubscribes the device.
+        /// </summary>
+        /// <param name="url">method url</param>
+        /// <param name="platform">platform string</param>
+		/// <param name="platform">environment string</param>
+        /// <param name="token">Token.</param>
+        /// <param name="callback">Callback.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public async void Unsubscribe<T>(string url, string platform,string environment, string channel, string token, Callback<T> callback) {
+            Dictionary<string,object> body = new Dictionary<string,object> ();
+            body.Add("platform", platform);
+            body.Add("environment", environment);
+            body.Add ("channel", channel);
+            body.Add ("token", token);
+            Execute(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST, callback);
+        }
+
+
+        /// <summary>
+        /// Publishes to a channel.
+        /// </summary>
+        /// <param name="channel">Channel.</param>
+        /// <param name="environment">Environment.</param>
+        /// <param name="payload">Payload.</param>
+        /// <param name="callback">Callback.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public async void Publish<T>(string url, string channel, string environment, object payload, Callback<T> callback) {
+            Dictionary<string,object> body = new Dictionary<string,object> ();
+            body.Add ("channel", channel);
+            body.Add ("environment", environment);
+            body.Add ("payload", payload);
+            Execute(Utilities.UpdateUrl(Uri, url), body, HTTPMethod.POST, callback);
         }
 
         private void BindListenerAfterReadingResponse(string body, string uri, CacheControlOptions cacheControlValue) {
