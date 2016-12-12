@@ -1,6 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
-using APGW_Android;
+using APGW;
 
 
 namespace TEST_APGW_ANDROID_UNIT

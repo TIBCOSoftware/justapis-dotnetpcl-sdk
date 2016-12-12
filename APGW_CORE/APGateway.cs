@@ -1,13 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Net.Http;
-using Autofac;
-using Autofac.Builder;
-using System.Net.Http.Headers;
 
 namespace APGW
 {
@@ -184,11 +177,12 @@ namespace APGW
         /// <summary>
         /// Subscribes to a channel.
         /// </summary>
-        /// <param name="codeName">Code name.</param>
+        
         /// <param name="platform">Platform.</param>
         /// <param name="channel">Channel.</param>
         /// <param name="period">Period.</param>
         /// <param name="token">Token.</param>
+		/// <param name="name">name object</param>
         /// <param name="callback">Callback.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
         public async void Subscribe<T>(string url, string platform, string channel, Int64 period, string token,string name, Callback<T> callback) {
@@ -204,8 +198,9 @@ namespace APGW
         /// <summary>
         /// Unsubscribes the device.
         /// </summary>
-        /// <param name="codeName">Code name.</param>
-        /// <param name="name">Name.</param>
+        /// <param name="url">method url</param>
+        /// <param name="platform">platform string</param>
+		/// <param name="platform">environment string</param>
         /// <param name="token">Token.</param>
         /// <param name="callback">Callback.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
@@ -222,7 +217,6 @@ namespace APGW
         /// <summary>
         /// Publishes to a channel.
         /// </summary>
-        /// <param name="codeName">Code name.</param>
         /// <param name="channel">Channel.</param>
         /// <param name="environment">Environment.</param>
         /// <param name="payload">Payload.</param>
