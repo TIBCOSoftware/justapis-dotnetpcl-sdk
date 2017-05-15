@@ -1,5 +1,4 @@
-﻿using System;
-using APGW;
+﻿using APGW;
 using System.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -10,8 +9,7 @@ namespace Common
     public class HttpWebRequestResponse: IResponse
     {
         private WebResponse response;
-        private String requestUri;
-
+        
         public HttpWebRequestResponse() {}
                
         public HttpWebRequestResponse (WebResponse response)

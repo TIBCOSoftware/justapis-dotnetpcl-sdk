@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net.Http;
-using System.Net.Http.Headers;
 
 namespace APGW
 {
@@ -33,7 +32,7 @@ namespace APGW
         }
 
         public CacheControlOptions CacheControl() {
-            if (response.Headers.CacheControl == null || response.Headers.CacheControl.NoCache == null) {
+            if (response.Headers.CacheControl == null || response.Headers.CacheControl.NoCache) {
                 return new CacheControlOptions (false);
             } else {
                 return new CacheControlOptions (response.Headers.CacheControl.NoCache);

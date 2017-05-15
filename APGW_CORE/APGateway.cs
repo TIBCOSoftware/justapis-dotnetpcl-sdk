@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Net.Http;
-using Autofac;
-using Autofac.Builder;
-using System.Net.Http.Headers;
+
 
 namespace APGW
 {
